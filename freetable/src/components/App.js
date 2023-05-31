@@ -5,6 +5,7 @@ import { AuthProvider } from "../contexts/AuthContext"
 import Home from "./Home"
 import Login from "./Login"
 import OwnerHome from "./OwnerHome"
+import Admin from "./admin"
 
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 
@@ -23,6 +24,7 @@ function App() {
                 <Route path='/login' element={<Login/>} />
                 <Route path='/home' element={<Home/>} />
                 <Route path='/ownerhome' element={<OwnerHome/>} />
+                <Route path='/admin' element={<Admin/>} />
               </Routes>
             </AuthProvider>
           </Router>
