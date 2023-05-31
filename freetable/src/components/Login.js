@@ -17,9 +17,14 @@ export default function Login() {
         try {
             setError('')
             setLoading(true)
-            await login(emailRef.current.value, passwordRef.current.value)
-            navigate('/home')
-        } catch {
+            const user = await login(emailRef.current.value, passwordRef.current.value)
+            if(user.role === 'owner'){
+                navigate('/ownerhome')
+            } else if(user.role === 'user'){
+                navigate('/home')
+            }
+        } catch(error) {
+            console.error(error);
             setError('Failed to sign in')
         }
         
