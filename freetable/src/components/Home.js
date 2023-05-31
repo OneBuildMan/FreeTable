@@ -1,9 +1,13 @@
 import React from 'react'
+import logo from '../img/logo.png'
 
 export default function Dashboard() {
     return (
-        <div>
+        <>
+        <header>
+            <img src={logo} alt="Logo" className="logo" />
+        </header><div>
             Stay tunned for cr7
-        </div>
+        </div></>
     )
 }

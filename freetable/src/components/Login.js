@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { Form, Button, Card, Alert } from 'react-bootstrap'
 import { useAuth } from '../contexts/AuthContext'
 import { Link , useNavigate } from "react-router-dom"
+import logo from '../img/logo.png'
 
 export default function Login() {
     const emailRef = useRef()
@@ -39,6 +40,9 @@ export default function Login() {
 
     return (
         <>
+            <header>
+                <img src={logo} alt="Logo" className="logo" />
+            </header>
             <Card>
                 <Card.Body>
                     <h2 className='text-center mb-4'>Login</h2>
@@ -61,6 +65,9 @@ export default function Login() {
             </Card>
         <div className='w-100 text-center mt-2'>
             Need an account? <Link to="/signup">Sign Up</Link>
+        </div>
+        <div className='w-100 text-center mt-2'>
+            Continue without account...<Link to="/">Go home</Link>
         </div>
     </>
     )

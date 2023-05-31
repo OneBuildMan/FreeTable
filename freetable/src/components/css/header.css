@@ -13,13 +13,24 @@ header {
     height: 80px; 
     background-color: #000;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     z-index: 1000;
 }
 
+.header-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.button-group {
+    justify-content: flex-end;
+    margin-right: 10px;
+}
+
 .logo {
-    height: 170px;  
+    height: 170px; 
 }
 
 .content {
