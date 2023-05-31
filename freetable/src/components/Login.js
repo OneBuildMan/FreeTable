@@ -17,9 +17,20 @@ export default function Login() {
         try {
             setError('')
             setLoading(true)
-            await login(emailRef.current.value, passwordRef.current.value)
-            navigate('/home')
-        } catch {
+            if(emailRef.current.value === 'admin@admin.com' && passwordRef.current.value === 'admin12'){
+                console.log('Navigating to /admin');
+                navigate('/admin')
+            }
+            else{
+                const user = await login(emailRef.current.value, passwordRef.current.value)
+                if(user.role === 'owner'){
+                    navigate('/ownerhome')
+                } else if(user.role === 'user'){
+                    navigate('/home')
+                }
+            }
+        } catch(error) {
+            console.error(error);
             setError('Failed to sign in')
         }
         

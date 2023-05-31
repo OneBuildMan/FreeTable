@@ -7,6 +7,7 @@ export default function Signup() {
     const emailRef = useRef()
     const passwordRef = useRef()
     const passwordConfirmRef = useRef()
+    const roleRef = useRef()
     const { signup } = useAuth()
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -16,7 +17,7 @@ export default function Signup() {
         e.preventDefault()
 
         if(passwordRef.current.value !== passwordConfirmRef.current.value){
-            return setError('Passwors do not match')
+            return setError('Passwords do not match')
         }
 
         if(passwordRef.current.value.length < 6){
@@ -26,9 +27,10 @@ export default function Signup() {
         try {
             setError('')
             setLoading(true)
-            await signup(emailRef.current.value, passwordRef.current.value)
+            await signup(emailRef.current.value, passwordRef.current.value, roleRef.current.value)
             navigate('/login')
-        } catch {
+        } catch (error) {
+            console.error(error);
             setError('Failed to create an accout')
         }
         
@@ -55,6 +57,13 @@ export default function Signup() {
                         <Form.Group id="password-confirm">
                             <Form.Label>Password confirmation</Form.Label>
                             <Form.Control type="password" ref={passwordConfirmRef} required />
+                        </Form.Group>
+                        <Form.Group id="role">
+                            <Form.Label>Role</Form.Label>
+                            <Form.Control as="select" ref={roleRef} required>
+                                <option value="user">user</option>
+                                <option value="owner">owner</option>
+                             </Form.Control>
                         </Form.Group>
                         <div className='w-100 text-center mt-2'>
                              {/*for space purpose*/}
