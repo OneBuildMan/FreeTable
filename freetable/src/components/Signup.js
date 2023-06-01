@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Link , useNavigate } from "react-router-dom"
 
 export default function Signup() {
+    const nameRef = useRef()
     const emailRef = useRef()
     const passwordRef = useRef()
     const passwordConfirmRef = useRef()
@@ -27,7 +28,7 @@ export default function Signup() {
         try {
             setError('')
             setLoading(true)
-            await signup(emailRef.current.value, passwordRef.current.value, roleRef.current.value)
+            await signup(nameRef.current.value, emailRef.current.value, passwordRef.current.value, roleRef.current.value)
             navigate('/login')
         } catch (error) {
             console.error(error);
@@ -44,6 +45,10 @@ export default function Signup() {
                     <h2 className='text-center mb-4'>Sign up</h2>
                     {error && <Alert variant="danger">{error}</Alert>}
                     <Form onSubmit={handleSubmit}>
+                        <Form.Group id="name">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control type="name" ref={nameRef} required />
+                        </Form.Group>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>
                             <Form.Control type="email" ref={emailRef} required />

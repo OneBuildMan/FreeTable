@@ -11,20 +11,22 @@ export function useAuth() {
 export function AuthProvider( {children}) {
     const [currentUser, setCurrentUser] = useState()
 
-    function signup(email, password, role) {
-        return auth.createUserWithEmailAndPassword(email, password).then((cred) => {
-          return firestore.collection("users").doc(cred.user.uid).set({
+    async function signup(name, email, password, role) {
+        const cred = await auth.createUserWithEmailAndPassword(email, password)
+        return await firestore.collection("users").doc(cred.user.uid).set({
+            id: cred.user.uid,
+            name: name,
             email: cred.user.email,
-            role: role 
-          });
-        });
+            role: role,
+            banned: "no"
+        })
       }
 
     async function login(email, password) {
         const res = await auth.signInWithEmailAndPassword(email, password);
         const uid = res.user.uid;
         const userDoc = await firestore.collection('users').doc(uid).get();
-        return { ...res.user, role: userDoc.data().role };
+        return { ...res.user, role: userDoc.data().role , banned: userDoc.data().banned };
     }
 
     function signout() {

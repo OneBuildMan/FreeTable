@@ -22,22 +22,24 @@ function App() {
                 <div className="logo">
                   <img src={logo} alt="Logo" />
                 </div>
-              </header><Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
-                  <div className="w-100" style={{ maxWidth: '400px' }}>
-                    <Signup />
-                  </div>
-                </Container></>
+              </header>
+              <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+                <div className="w-100" style={{ maxWidth: '400px' }}>
+                  <Signup />
+                </div>
+              </Container></>
             } />
             <Route path='/login' element={
               <><header>
                 <div className="logo">
                   <img src={logo} alt="Logo" />
                 </div>
-              </header><Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
-                  <div className="w-100" style={{ maxWidth: '400px' }}>
-                    <Login />
-                  </div>
-                </Container></>
+              </header>
+              <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+                <div className="w-100" style={{ maxWidth: '400px' }}>
+                  <Login />
+                </div>
+              </Container></>
             } />
             <Route path='/' element={<NoUser />} />
             <Route path='/home' element={<Home />} />
