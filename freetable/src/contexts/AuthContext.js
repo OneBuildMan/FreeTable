@@ -27,6 +27,10 @@ export function AuthProvider( {children}) {
         return { ...res.user, role: userDoc.data().role };
     }
 
+    function signout() {
+        return auth.signOut();
+    }
+
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             setCurrentUser(user)
@@ -39,7 +43,8 @@ export function AuthProvider( {children}) {
     const value = {
         currentUser,
         login,
-        signup
+        signup,
+        signout
     }
 
 
