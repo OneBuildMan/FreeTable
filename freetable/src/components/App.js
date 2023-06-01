@@ -8,6 +8,7 @@ import OwnerHome from "./OwnerHome"
 import Admin from "./admin"
 import NoUser from "./NoUser"
 import './css/header.css'
+import logo from '../img/logo.png'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 
 function App() {
@@ -17,18 +18,26 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path='/signup' element={
-              <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
-                <div className="w-100" style={{ maxWidth: '400px' }}>
-                  <Signup />
+              <><header>
+                <div className="logo">
+                  <img src={logo} alt="Logo" />
                 </div>
-              </Container>
+              </header><Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+                  <div className="w-100" style={{ maxWidth: '400px' }}>
+                    <Signup />
+                  </div>
+                </Container></>
             } />
             <Route path='/login' element={
-              <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
-                <div className="w-100" style={{ maxWidth: '400px' }}>
-                  <Login />
+              <><header>
+                <div className="logo">
+                  <img src={logo} alt="Logo" />
                 </div>
-              </Container>
+              </header><Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+                  <div className="w-100" style={{ maxWidth: '400px' }}>
+                    <Login />
+                  </div>
+                </Container></>
             } />
             <Route path='/' element={<NoUser />} />
             <Route path='/home' element={<Home />} />

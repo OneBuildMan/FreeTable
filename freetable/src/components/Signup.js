@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react'
 import { Form, Button, Card, Alert } from 'react-bootstrap'
 import { useAuth } from '../contexts/AuthContext'
 import { Link , useNavigate } from "react-router-dom"
-import logo from '../img/logo.png'
 
 export default function Signup() {
     const emailRef = useRef()
@@ -60,10 +59,10 @@ export default function Signup() {
                             <Form.Control type="password" ref={passwordConfirmRef} required />
                         </Form.Group>
                         <Form.Group id="role">
-                            <Form.Label>Role</Form.Label>
+                            <Form.Label>What are you?</Form.Label>
                             <Form.Control as="select" ref={roleRef} required>
-                                <option value="user">user</option>
-                                <option value="owner">owner</option>
+                                <option value="user">User</option>
+                                <option value="owner">Restaurant owner</option>
                              </Form.Control>
                         </Form.Group>
                         <div className='w-100 text-center mt-2'>
