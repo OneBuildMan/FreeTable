@@ -1,45 +1,18 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-}
-
 header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    background-color: black;
     height: 80px; 
-    background-color: #000;
-    display: flex;
+    display: flex; 
+    justify-content: center; 
     align-items: center;
-    justify-content: center;
-    z-index: 1000;
 }
 
-.header-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
+footer {
+    background-color: gray;
+    text-align: center;
+    margin-top: auto;
+    padding: 8px;
 }
 
-.button-group {
-    justify-content: flex-end;
-    margin-right: 10px;
-}
-
-.logo {
-    height: 170px; 
-}
-
-.content {
-    padding-top: 60px;  
-}
-
-.footer {
-  background-color: gray;
-  text-align: center;
-  margin-top: auto;
-  padding: 8px;
+.logo img{
+    height: 170px;
 }

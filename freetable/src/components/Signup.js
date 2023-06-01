@@ -40,9 +40,6 @@ export default function Signup() {
 
     return (
         <>
-            <header>
-                <img src={logo} alt="Logo" className="logo" />
-            </header>
             <Card>
                 <Card.Body>
                     <h2 className='text-center mb-4'>Sign up</h2>

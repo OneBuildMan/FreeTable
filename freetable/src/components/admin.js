@@ -5,7 +5,6 @@ export default function Dashboard() {
     return (
         <>
         <header>
-            <img src={logo} alt="Logo" className="logo" />
         </header>
         <div>
             admin
