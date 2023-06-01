@@ -1,9 +1,20 @@
 import React from 'react'
 import logo from '../img/logo.png'
-import { Link } from "react-router-dom"
-import signout from '../img/signout.png'
+import signoutimg from '../img/signout.png'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
+    const navigate = useNavigate()
+    const { signout } = useAuth()
+
+    function handleSignOut(){
+        signout()
+        .then(()=>{
+            navigate('/login')
+        }) 
+    }
+
     return (
         <>
         <header>
@@ -11,7 +22,7 @@ export default function Dashboard() {
             <img src={logo} alt="Logo" />
           </div>
           <div className='buttons'>
-                <Link to='/login'><img src={signout} alt="signout" className='sign-out-btn'/></Link>
+              <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
           </div>
         </header>
         <div>

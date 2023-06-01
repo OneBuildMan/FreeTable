@@ -23,6 +23,9 @@ export default function Login() {
             }
             else{
                 const user = await login(emailRef.current.value, passwordRef.current.value)
+                if(user.banned === 'yes'){
+                    setError('This account has been banned!')
+                }
                 if(user.role === 'owner'){
                     navigate('/ownerhome')
                 } else if(user.role === 'user'){
