@@ -1,0 +1,16 @@
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.button {
+    background-color: black;
+    color: red;
+    padding: 10px 20px; 
+    text-decoration: none; 
+}
+
+.button:hover {
+    background-color: red;
+    color: black;
+}

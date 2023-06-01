@@ -8,17 +8,11 @@ import OwnerHome from "./OwnerHome"
 import Admin from "./admin"
 import NoUser from "./NoUser"
 import './css/header.css'
-import logo from '../img/logo.png'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 
 function App() {
   return (
     <>
-       <header>
-        <div className="logo">
-          <img src={logo} alt="Logo"/>
-        </div>
-       </header>
       <Router>
         <AuthProvider>
           <Routes>
