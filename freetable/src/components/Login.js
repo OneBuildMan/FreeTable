@@ -18,7 +18,7 @@ export default function Login() {
             setError('')
             setLoading(true)
             if(emailRef.current.value === 'admin@admin.com' && passwordRef.current.value === 'admin12'){
-                console.log('Navigating to /admin');
+                await login(emailRef.current.value, passwordRef.current.value)
                 navigate('/admin')
             }
             else{
@@ -26,10 +26,12 @@ export default function Login() {
                 if(user.banned === 'yes'){
                     setError('This account has been banned!')
                 }
-                if(user.role === 'owner'){
-                    navigate('/ownerhome')
-                } else if(user.role === 'user'){
-                    navigate('/home')
+                else {
+                    if(user.role === 'owner'){
+                        navigate('/ownerhome')
+                    } else if(user.role === 'user'){
+                        navigate('/home')
+                    }
                 }
             }
         } catch(error) {
