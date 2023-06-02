@@ -10,8 +10,9 @@ header {
 footer {
     background-color: gray;
     text-align: center;
-    margin-top: auto;
-    padding: 8px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
 .logo {
