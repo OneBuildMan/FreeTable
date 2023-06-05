@@ -213,6 +213,23 @@ export default function Dashboard() {
       window.location.reload(false);
     }
 
+    async function handleDeleteForm(e) {
+      e.preventDefault(e)
+
+      setLoading(true)
+
+      try {
+        await firestore.collection('restaurants').doc(restaurant.restaurantId).delete()
+        console.log("resturant deleted")
+      } catch (error) {
+        console.error("Couldnt delete document: ", error)
+      }
+
+      setDeleteForm(false)
+      setLoading(false)
+      window.location.reload(false)
+    }
+
     return (
         <>
         <header>
@@ -267,6 +284,27 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <Modal
+                        isOpen={deleteForm}
+                        onRequestClose={handleCloseForm}
+                        contentLabel="Delete Restaurant">
+                        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                              <Card>
+                              <Card.Body>
+                                  <h2 className='text-center mb-4'>Are you sure you want to delete the restaurant?</h2>
+                                  <Form>
+                                      <div className='w-100 text-center mt-2'>
+                                          {/*for space purpose*/}
+                                      </div>
+                                      <Button disabled={loading} className="w-100" type="submit" onClick={handleDeleteForm}>Delete restaurant</Button>
+                                      <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                                  </Form>
+                              </Card.Body>
+                            </Card>
+                          </div>
+                      </Modal>
+                  </div>
+                  <div>
+                    <Modal
                       isOpen={editForm}
                       onRequestClose={handleCloseForm}
                       contentLabel="Edit Restaurant">
@@ -274,7 +312,7 @@ export default function Dashboard() {
                             <Card>
                             <Card.Body>
                                 <h2 className='text-center mb-4'>Edit restaurant</h2>
-                                <Form onSubmit={handleSubmit}>
+                                <Form>
                                     <Form.Group id="name">
                                         <Form.Label>Does it have another name?</Form.Label>
                                         <Form.Control type="name" ref={nameRef}/>
@@ -309,15 +347,12 @@ export default function Dashboard() {
                             </Card.Body>
                           </Card>
                         </div>
-                      
                     </Modal>
                   </div>
                 </TabPane>
               </TabContent>
             </Container>
-            
             </>
-            
           ) : (
               <div style={{ maxWidth: '400px', margin: '0 auto' }}>
               <Card>
