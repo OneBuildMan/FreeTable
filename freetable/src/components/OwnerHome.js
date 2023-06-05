@@ -1,12 +1,14 @@
 import React, { useState, useRef , useEffect} from 'react'
+import Modal from 'react-modal'
 import logo from '../img/logo.png'
 import signoutimg from '../img/signout.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate , Link } from "react-router-dom"
 import { firestore , storage } from '../firebase'
-import { Form, Button, Card, } from 'react-bootstrap'
-import './css/map.css'
+import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
+import './css/restauranttab.css'
 
+Modal.setAppElement('#root');
 
 export default function Dashboard() {
     const navigate = useNavigate()
@@ -19,12 +21,23 @@ export default function Dashboard() {
     const capacityRef = useRef()
     const menuRef = useRef()
     const photoRef = useRef()
+    const [restaurant, setRestaurant] = useState(null)
+    const [activeTab, setActiveTab] = useState('photo');
+    const [editForm, setEditForm] = useState(false);
+    const [deleteForm, setDeleteForm] = useState(false);
 
     useEffect(() => {
       const fetchData = async () => {
         if(currentUser){
         const data = await firestore.collection("restaurants").where("ownerId", "==", currentUser.uid).get();
         setOwnerHasRestaurant(!data.empty);
+
+        if(!data.empty) {
+          const restaurant = data.docs[0]
+          const restaurantData = restaurant.data()
+
+          setRestaurant(restaurantData);
+        }
         }
       };
   
@@ -109,6 +122,19 @@ export default function Dashboard() {
       window.location.reload(false);
     }
 
+    const handleEdit = () => {
+      setEditForm(true);
+    };
+
+    const handleDelete = () => {
+      setDeleteForm(true);
+    }; 
+
+    const handleCloseForm = () => {
+      setEditForm(false);
+      setDeleteForm(false);
+    };
+
     return (
         <>
         <header>
@@ -123,7 +149,61 @@ export default function Dashboard() {
 
         <div>
           { ownerHasRestaurant ? (
-            <p>Has restaurant</p>
+            <><h2 className="restaurant-name">{restaurant.name}</h2>
+            <Container className="restaurant">
+              <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
+                <Nav.Item>
+                  <Nav.Link eventKey="photo">Restaurant</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="menu">Menu</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="location">Location</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="settings">Settings</Nav.Link>
+                </Nav.Item>
+              </Nav>
+
+              <TabContent className="tab-content">
+                <TabPane eventKey="photo" active={activeTab === 'photo'}>
+                  <Image src={restaurant.photoUrl} alt={restaurant.name} />
+                </TabPane>
+                <TabPane eventKey="menu" active={activeTab === 'menu'}>
+                  <Image src={restaurant.menuUrl} alt="Menu" />
+                </TabPane>
+                <TabPane eventKey="location" active={activeTab === 'location'}>
+                <div className="map">
+                  <iframe
+                    title="Location Map"
+                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyCsnBFuUpjzHB_8kC1FXRnofiRaYIq3Jjg&q=${encodeURIComponent(restaurant.location)}`}
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                </TabPane>
+                <TabPane eventKey="settings" active={activeTab === 'settings'}>
+                  <div className='btn-cnt'>
+                    <Button className='btn' onClick={handleEdit}>Edit Restaurant</Button>
+                    <Button className='btn' onClick={handleDelete}>Delete Restaurant</Button>
+                  </div>
+                </TabPane>
+              </TabContent>
+            </Container>
+            <Modal show={editForm} onHide={handleCloseForm}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Edit Restaurant Information</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {/* Render your edit form here */}
+                  {/* Form inputs and fields go here */}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleCloseForm}>Cancel</Button>
+                </Modal.Footer>
+              </Modal>
+            </>
+            
           ) : (
               <div style={{ maxWidth: '400px', margin: '0 auto' }}>
               <Card>
