@@ -8,12 +8,12 @@ import { firestore , storage } from '../firebase'
 import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import './css/restauranttab.css'
 
-Modal.setAppElement('#root');
+Modal.setAppElement('#root')
 
 export default function Dashboard() {
     const navigate = useNavigate()
     const { currentUser, signout } = useAuth()
-    const [ownerHasRestaurant, setOwnerHasRestaurant] = useState(false);
+    const [ownerHasRestaurant, setOwnerHasRestaurant] = useState(false)
     const [loading, setLoading] = useState(false)
     const nameRef = useRef()
     const phoneRef = useRef()
@@ -22,27 +22,27 @@ export default function Dashboard() {
     const menuRef = useRef()
     const photoRef = useRef()
     const [restaurant, setRestaurant] = useState(null)
-    const [activeTab, setActiveTab] = useState('photo');
-    const [editForm, setEditForm] = useState(false);
-    const [deleteForm, setDeleteForm] = useState(false);
+    const [activeTab, setActiveTab] = useState('photo')
+    const [editForm, setEditForm] = useState(false)
+    const [deleteForm, setDeleteForm] = useState(false)
 
     useEffect(() => {
       const fetchData = async () => {
         if(currentUser){
-        const data = await firestore.collection("restaurants").where("ownerId", "==", currentUser.uid).get();
-        setOwnerHasRestaurant(!data.empty);
+        const data = await firestore.collection("restaurants").where("ownerId", "==", currentUser.uid).get()
+        setOwnerHasRestaurant(!data.empty)
 
         if(!data.empty) {
           const restaurant = data.docs[0]
           const restaurantData = restaurant.data()
 
-          setRestaurant(restaurantData);
+          setRestaurant(restaurantData)
         }
         }
       };
   
-      fetchData();
-    }, [currentUser]);
+      fetchData()
+    }, [currentUser])
 
     function handleSignOut(){
         signout()
@@ -135,6 +135,84 @@ export default function Dashboard() {
       setDeleteForm(false);
     };
 
+    async function handleEditForm(e) {
+      e.preventDefault()
+
+      const name = nameRef.current.value
+      const phone = phoneRef.current.value
+      const location = locationRef.current.value
+      const capacity = capacityRef.current.value
+      const menuFile = menuRef.current.files[0]
+      const photoFile = photoRef.current.files[0]
+
+      setLoading(true)
+
+      const restaurantRef = firestore.collection('restaurants').doc(restaurant.restaurantId)
+      const update = {}
+
+      if(name){update.name = name}
+      if(phone){update.phone = phone}
+      if(location){update.location = location}
+      if(capacity){update.capacity = capacity}
+
+      if (menuFile) {
+        const menuStorageRef = storage.ref().child('menus').child(menuFile.name)
+        const menuUploadTask = menuStorageRef.put(menuFile)
+        await new Promise((resolve, reject) => {
+          menuUploadTask.on(
+            'state_changed',
+            (snapshot) => {},
+            (error) => {
+              reject(error);
+            },
+            () => {
+              resolve();
+            }
+          );
+        });
+    
+        const menuUrl = await menuUploadTask.snapshot.ref.getDownloadURL();
+        update.menuUrl = menuUrl;
+      }
+    
+      if (photoFile) {
+        const photoStorageRef = storage.ref().child('photos').child(photoFile.name);
+        const photoUploadTask = photoStorageRef.put(photoFile);
+    
+        await new Promise((resolve, reject) => {
+          photoUploadTask.on(
+            'state_changed',
+            (snapshot) => {},
+            (error) => {
+              reject(error);
+            },
+            () => {
+              resolve();
+            }
+          );
+        });
+    
+        const photoUrl = await photoUploadTask.snapshot.ref.getDownloadURL();
+        update.photoUrl = photoUrl;
+      }
+    
+      if (Object.keys(update).length > 0) {
+        await restaurantRef.update(update);
+      }
+    
+      setLoading(false);
+    
+      nameRef.current.value = '';
+      phoneRef.current.value = '';
+      locationRef.current.value = '';
+      capacityRef.current.value = '';
+      menuRef.current.value = '';
+      photoRef.current.value = '';
+    
+      setEditForm(false);
+      window.location.reload(false);
+    }
+
     return (
         <>
         <header>
@@ -187,21 +265,57 @@ export default function Dashboard() {
                     <Button className='btn' onClick={handleEdit}>Edit Restaurant</Button>
                     <Button className='btn' onClick={handleDelete}>Delete Restaurant</Button>
                   </div>
+                  <div>
+                    <Modal
+                      isOpen={editForm}
+                      onRequestClose={handleCloseForm}
+                      contentLabel="Edit Restaurant">
+                      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                            <Card>
+                            <Card.Body>
+                                <h2 className='text-center mb-4'>Edit restaurant</h2>
+                                <Form onSubmit={handleSubmit}>
+                                    <Form.Group id="name">
+                                        <Form.Label>Does it have another name?</Form.Label>
+                                        <Form.Control type="name" ref={nameRef}/>
+                                    </Form.Group>
+                                    <Form.Group id="phoneNumber">
+                                        <Form.Label>Is there another phone number?</Form.Label>
+                                        <Form.Control type="name" ref={phoneRef}/>
+                                    </Form.Group>
+                                    <Form.Group id="location">
+                                        <Form.Label>Is there a different location?</Form.Label>
+                                        <Form.Control type="name" ref={locationRef}/>
+                                    </Form.Group>
+                                    <Form.Group id="capacity">
+                                        <Form.Label>Another capacity?</Form.Label>
+                                        <Form.Control type="name" ref={capacityRef}/>
+                                    </Form.Group>
+                                    <Form.Group id="photo">
+                                        <Form.Label>Want to change restaurant photo?</Form.Label>
+                                        <Form.Control type="file" ref={photoRef}/>
+                                    </Form.Group>
+                                    <Form.Group id="menu">
+                                        <Form.Label>Want to change the menu? </Form.Label>
+                                        <Form.Control type="file" ref={menuRef}/>
+                                    </Form.Group>
+
+                                    <div className='w-100 text-center mt-2'>
+                                        {/*for space purpose*/}
+                                    </div>
+                                    <Button disabled={loading} className="w-100" type="submit" onClick={handleEditForm}>Edit restaurant</Button>
+                                    <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                                </Form>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      
+                    </Modal>
+                  </div>
                 </TabPane>
               </TabContent>
             </Container>
-            <Modal show={editForm} onHide={handleCloseForm}>
-                <Modal.Header closeButton>
-                  <Modal.Title>Edit Restaurant Information</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  {/* Render your edit form here */}
-                  {/* Form inputs and fields go here */}
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={handleCloseForm}>Cancel</Button>
-                </Modal.Footer>
-              </Modal>
+            
             </>
             
           ) : (

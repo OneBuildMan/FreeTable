@@ -49,8 +49,8 @@
   
 .tab-content img {
     max-width: 100% !important;
-    height: auto !important;
-    margin: auto !important;
+    height: 400px;
+    width: 600px;
 }
 
 .map {
