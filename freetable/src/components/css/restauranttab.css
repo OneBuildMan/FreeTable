@@ -20,6 +20,7 @@
   
 .nav-item {
     background-color: black !important;
+    font-size: 20px;
 }
   
 .nav-link {
@@ -45,6 +46,7 @@
     flex-direction: column !important;
     width: 100% !important;
     height: 100%; 
+    margin-bottom: 20px !important;
 }
   
 .tab-content img {
@@ -74,9 +76,12 @@
     color: red !important;
     background-color: black !important;
     transition: all 0.3s ease; 
+    font-size: 20px !important;
 }
 
 .btn:hover {
     color: black !important; 
     background-color: red !important; 
 }
+
+
