@@ -1,0 +1,26 @@
+.title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+.picker {
+    margin-bottom: 400px;
+}
+  
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+  
+select {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.picker:not(:last-child) {
+    margin-bottom: 400px !important;
+  }
+  

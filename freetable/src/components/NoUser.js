@@ -5,8 +5,8 @@ import './css/button.css'
 import './css/restauranttab.css'
 import './css/restaurantbox.css'
 import Modal from 'react-modal'
-import { firestore , storage } from '../firebase'
-import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
+import { firestore } from '../firebase'
+import { Button, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import { Link , useNavigate } from "react-router-dom"
 
 Modal.setAppElement('#root')
@@ -15,7 +15,6 @@ export default function Dashboard() {
 
     const [restaurants, setRestaurants] = useState([]);
     const [activeTab, setActiveTab] = useState('photo')
-    const [loading, setLoading] = useState(false)
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [restaurantModal, setRestaurantModal] = useState(false)
     const navigate = useNavigate()
