@@ -8,7 +8,7 @@ import { firestore } from '../firebase'
 import Modal from 'react-modal'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
+import { format, setHours, setMinutes} from 'date-fns';
 
 Modal.setAppElement('#root')
 
@@ -22,6 +22,8 @@ export default function Dashboard() {
     const [startDate, setStartDate] = useState(new Date());
     const [numPeople, setNumPeople] = useState(1);
     const [reservationTime, setReservationTime] = useState(new Date());
+    const tomorrow = addDays(new Date(), 1);
+    const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
 
     const fetchData = async () => {
         const restaurantCollection = await firestore.collection('restaurants').get()
@@ -158,9 +160,10 @@ export default function Dashboard() {
                         <DatePicker
                             selected={startDate}
                             onChange={(date) => setStartDate(date)}
-                            minDate={new Date()}
-                            maxDate={addDays(new Date(), 30)}
                             dateFormat='MMMM d'
+                            minDate={tomorrow}
+                            minTime={minDateTime}
+                            maxTime={setHours(setMinutes(tomorrow, 23), 59)}
                         />
                     </div>
 
@@ -183,6 +186,8 @@ export default function Dashboard() {
                             timeIntervals={30}
                             timeCaption="Time"
                             dateFormat="HH:mm"
+                            minTime={new Date().setHours(9, 0)}
+                            maxTime={new Date().setHours(20, 0)}
                         />
                     </div>
                     <button className='btn' onClick={() => handleReservation(currentRestaurant.id, currentRestaurant.name)}>Reserve</button>
