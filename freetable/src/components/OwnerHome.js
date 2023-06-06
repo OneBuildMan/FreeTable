@@ -22,14 +22,19 @@ export default function Dashboard() {
     const menuRef = useRef()
     const photoRef = useRef()
     const [restaurant, setRestaurant] = useState(null)
+    const [restaurants, setRestaurants] = useState([])
     const [activeTab, setActiveTab] = useState('photo')
     const [editForm, setEditForm] = useState(false)
     const [deleteForm, setDeleteForm] = useState(false)
+    const [restaurantModal, setRestaurantModal] = useState(false)
+    const [currentRestaurant, setCurrentRestaurant] = useState({})
+    const [newRestaurantModal, setNewRestaurantModal] = useState(false)
 
     useEffect(() => {
       const fetchData = async () => {
         if(currentUser){
         const data = await firestore.collection("restaurants").where("ownerId", "==", currentUser.uid).get()
+        setRestaurants(data.docs.map(doc => ({ ...doc.data(), id: doc.id})))
         setOwnerHasRestaurant(!data.empty)
 
         if(!data.empty) {
@@ -133,6 +138,7 @@ export default function Dashboard() {
     const handleCloseForm = () => {
       setEditForm(false);
       setDeleteForm(false);
+      setNewRestaurantModal(false)
     };
 
     async function handleEditForm(e) {
@@ -230,6 +236,20 @@ export default function Dashboard() {
       window.location.reload(false)
     }
 
+    function openModal(restaurant) {
+      setCurrentRestaurant(restaurant)
+      setRestaurantModal(true)
+    }
+
+    function closeModal() {
+      setRestaurantModal(false)
+      setNewRestaurantModal(false)
+    }
+
+    function addNewModal() {
+      setNewRestaurantModal(true)
+    }
+
     return (
         <>
         <header>
@@ -244,114 +264,204 @@ export default function Dashboard() {
 
         <div>
           { ownerHasRestaurant ? (
-            <><h2 className="restaurant-name">{restaurant.name}</h2>
-            <Container className="restaurant">
-              <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
-                <Nav.Item>
-                  <Nav.Link eventKey="photo">Restaurant</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="menu">Menu</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="location">Location</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="settings">Settings</Nav.Link>
-                </Nav.Item>
-              </Nav>
-
-              <TabContent className="tab-content">
-                <TabPane eventKey="photo" active={activeTab === 'photo'}>
-                  <Image src={restaurant.photoUrl} alt={restaurant.name} />
-                </TabPane>
-                <TabPane eventKey="menu" active={activeTab === 'menu'}>
-                  <Image src={restaurant.menuUrl} alt="Menu" />
-                </TabPane>
-                <TabPane eventKey="location" active={activeTab === 'location'}>
-                <div className="map">
-                  <iframe
-                    title="Location Map"
-                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyCsnBFuUpjzHB_8kC1FXRnofiRaYIq3Jjg&q=${encodeURIComponent(restaurant.location)}`}
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                </TabPane>
-                <TabPane eventKey="settings" active={activeTab === 'settings'}>
-                  <div className='btn-cnt'>
-                    <Button className='btn' onClick={handleEdit}>Edit Restaurant</Button>
-                    <Button className='btn' onClick={handleDelete}>Delete Restaurant</Button>
+            <>
+              <div className="restaurant-list">
+                  {restaurants.map(restaurant => (
+                  <div className='restaurant-box' key={restaurant.name}>
+                      <button onClick={() => openModal(restaurant)}>
+                          <h2>{restaurant.name}</h2>
+                          <img src={restaurant.photoUrl} alt={restaurant.name} />
+                      </button>
                   </div>
-                  <div>
-                    <Modal
-                        isOpen={deleteForm}
-                        onRequestClose={handleCloseForm}
-                        contentLabel="Delete Restaurant">
-                        <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-                              <Card>
-                              <Card.Body>
-                                  <h2 className='text-center mb-4'>Are you sure you want to delete the restaurant?</h2>
-                                  <Form>
-                                      <div className='w-100 text-center mt-2'>
-                                          {/*for space purpose*/}
-                                      </div>
-                                      <Button disabled={loading} className="w-100" type="submit" onClick={handleDeleteForm}>Delete restaurant</Button>
-                                      <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
-                                  </Form>
-                              </Card.Body>
-                            </Card>
-                          </div>
-                      </Modal>
-                  </div>
-                  <div>
-                    <Modal
-                      isOpen={editForm}
-                      onRequestClose={handleCloseForm}
-                      contentLabel="Edit Restaurant">
-                      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-                            <Card>
-                            <Card.Body>
-                                <h2 className='text-center mb-4'>Edit restaurant</h2>
-                                <Form>
-                                    <Form.Group id="name">
-                                        <Form.Label>Does it have another name?</Form.Label>
-                                        <Form.Control type="name" ref={nameRef}/>
-                                    </Form.Group>
-                                    <Form.Group id="phoneNumber">
-                                        <Form.Label>Is there another phone number?</Form.Label>
-                                        <Form.Control type="name" ref={phoneRef}/>
-                                    </Form.Group>
-                                    <Form.Group id="location">
-                                        <Form.Label>Is there a different location?</Form.Label>
-                                        <Form.Control type="name" ref={locationRef}/>
-                                    </Form.Group>
-                                    <Form.Group id="capacity">
-                                        <Form.Label>Another capacity?</Form.Label>
-                                        <Form.Control type="name" ref={capacityRef}/>
-                                    </Form.Group>
-                                    <Form.Group id="photo">
-                                        <Form.Label>Want to change restaurant photo?</Form.Label>
-                                        <Form.Control type="file" ref={photoRef}/>
-                                    </Form.Group>
-                                    <Form.Group id="menu">
-                                        <Form.Label>Want to change the menu? </Form.Label>
-                                        <Form.Control type="file" ref={menuRef}/>
-                                    </Form.Group>
+                  ))}
+              </div> 
+              <Modal
+                  isOpen={restaurantModal}
+                  onRequestClose={closeModal}
+                  contentLabel="Restaurant">
+                  <h2 className="restaurant-name">{currentRestaurant.name}</h2>
+                  <Container className="restaurant">
+                    <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
+                      <Nav.Item>
+                        <Nav.Link eventKey="photo">Restaurant</Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey="menu">Menu</Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey="location">Location</Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey="reviews">Reviews</Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey="settings">Settings</Nav.Link>
+                      </Nav.Item>
+                    </Nav>
 
-                                    <div className='w-100 text-center mt-2'>
-                                        {/*for space purpose*/}
-                                    </div>
-                                    <Button disabled={loading} className="w-100" type="submit" onClick={handleEditForm}>Edit restaurant</Button>
-                                    <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
-                                </Form>
-                            </Card.Body>
-                          </Card>
+                    <TabContent className="tab-content">
+                      <TabPane eventKey="photo" active={activeTab === 'photo'}>
+                        <Image src={currentRestaurant.photoUrl} alt={currentRestaurant.name} />
+                      </TabPane>
+                      <TabPane eventKey="menu" active={activeTab === 'menu'}>
+                        <Image src={currentRestaurant.menuUrl} alt="Menu" />
+                      </TabPane>
+                      <TabPane eventKey="location" active={activeTab === 'location'}>
+                      <div className="map">
+                        <iframe
+                          title="Location Map"
+                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyCsnBFuUpjzHB_8kC1FXRnofiRaYIq3Jjg&q=${encodeURIComponent(currentRestaurant.location)}`}
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                      </TabPane>
+                      <TabPane eventKey="reviews" active={activeTab === 'reviews'}>
+                        <div className='btn-cnt'>
+                          <h2>aici o sa vina reviews</h2>
                         </div>
-                    </Modal>
+                      </TabPane>
+                      <TabPane eventKey="settings" active={activeTab === 'settings'}>
+                        <div className='btn-cnt'>
+                          <Button className='btn' onClick={handleEdit}>Edit Restaurant</Button>
+                          <Button className='btn' onClick={handleDelete}>Delete Restaurant</Button>
+                        </div>
+                        <div>
+                          <Modal
+                              isOpen={deleteForm}
+                              onRequestClose={handleCloseForm}
+                              contentLabel="Delete Restaurant">
+                              <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                                    <Card>
+                                    <Card.Body>
+                                        <h2 className='text-center mb-4'>Are you sure you want to delete the restaurant?</h2>
+                                        <Form>
+                                            <div className='w-100 text-center mt-2'>
+                                                {/*for space purpose*/}
+                                            </div>
+                                            <Button disabled={loading} className="w-100" type="submit" onClick={handleDeleteForm}>Delete restaurant</Button>
+                                            <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                                        </Form>
+                                    </Card.Body>
+                                  </Card>
+                                </div>
+                            </Modal>
+                        </div>
+                        <div>
+                          <Modal
+                            isOpen={editForm}
+                            onRequestClose={handleCloseForm}
+                            contentLabel="Edit Restaurant">
+                            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                                  <Card>
+                                  <Card.Body>
+                                      <h2 className='text-center mb-4'>Edit restaurant</h2>
+                                      <Form>
+                                          <Form.Group id="name">
+                                              <Form.Label>Does it have another name?</Form.Label>
+                                              <Form.Control type="name" ref={nameRef}/>
+                                          </Form.Group>
+                                          <Form.Group id="phoneNumber">
+                                              <Form.Label>Is there another phone number?</Form.Label>
+                                              <Form.Control type="name" ref={phoneRef}/>
+                                          </Form.Group>
+                                          <Form.Group id="location">
+                                              <Form.Label>Is there a different location?</Form.Label>
+                                              <Form.Control type="name" ref={locationRef}/>
+                                          </Form.Group>
+                                          <Form.Group id="capacity">
+                                              <Form.Label>Another capacity?</Form.Label>
+                                              <Form.Control type="name" ref={capacityRef}/>
+                                          </Form.Group>
+                                          <Form.Group id="photo">
+                                              <Form.Label>Want to change restaurant photo?</Form.Label>
+                                              <Form.Control type="file" ref={photoRef}/>
+                                          </Form.Group>
+                                          <Form.Group id="menu">
+                                              <Form.Label>Want to change the menu? </Form.Label>
+                                              <Form.Control type="file" ref={menuRef}/>
+                                          </Form.Group>
+
+                                          <div className='w-100 text-center mt-2'>
+                                              {/*for space purpose*/}
+                                          </div>
+                                          <Button disabled={loading} className="w-100" type="submit" onClick={handleEditForm}>Edit restaurant</Button>
+                                          <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                                      </Form>
+                                  </Card.Body>
+                                </Card>
+                              </div>
+                          </Modal>
+                        </div>
+                      </TabPane>
+                    </TabContent>
+                  </Container>
+                  <Button className="btn" onClick={closeModal} style={{
+                      display: 'inline-block',
+                      position: 'absolute',
+                      bottom: '10px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      
+                      }}>Close</Button>
+              </Modal>
+              <Button className="btn" onClick={addNewModal} style={{
+                      display: 'inline-block',
+                      position: 'absolute',
+                      bottom: '25px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      
+                      }}>Add a new restaurant</Button>
+              <Modal
+                isOpen={newRestaurantModal}
+                onRequestClose={closeModal}
+                contentLabel="Delete Restaurant">
+                <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                  <Card>
+                    <Card.Body>
+                      <h2 className='text-center mb-4'>Add a new restaurant</h2>
+                        <Form onSubmit={handleSubmit}>
+                        <Form.Group id="name">
+                          <Form.Label>Name</Form.Label>
+                          <Form.Control type="name" ref={nameRef} required />
+                        </Form.Group>
+                        <Form.Group id="phoneNumber">
+                          <Form.Label>Phone Number</Form.Label>
+                          <Form.Control type="name" ref={phoneRef} required />
+                        </Form.Group>
+                        <Form.Group id="location">
+                          <Form.Label>Location</Form.Label>
+                          <Form.Control type="name" ref={locationRef} required />
+                        </Form.Group>
+                          <Form.Group id="capacity">
+                          <Form.Label>Capacity</Form.Label>
+                          <Form.Control type="name" ref={capacityRef} required />
+                        </Form.Group>
+                        <Form.Group id="photo">
+                          <Form.Label>Photo</Form.Label>
+                          <Form.Control type="file" ref={photoRef} required />
+                        </Form.Group>
+                          <Form.Group id="menu">
+                          <Form.Label>Menu</Form.Label>
+                          <Form.Control type="file" ref={menuRef} required />
+                        </Form.Group>
+                        <div className='w-100 text-center mt-2'>
+                          {/*for space purpose*/}
+                        </div>
+                        <Button disabled={loading} className="w-100" type="submit">Add restaurant</Button>
+                        </Form>
+                    </Card.Body>
+                  </Card>
+                  <Button className="btn" onClick={closeModal} style={{
+                          display: 'inline-block',
+                          position: 'absolute',
+                          bottom: '20px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                      
+                      }}>Close</Button>
                   </div>
-                </TabPane>
-              </TabContent>
-            </Container>
+                </Modal>
             </>
           ) : (
               <div style={{ maxWidth: '400px', margin: '0 auto' }}>
