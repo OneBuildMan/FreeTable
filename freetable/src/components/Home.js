@@ -2,12 +2,13 @@ import React , { useEffect , useState } from 'react'
 import logo from '../img/logo.png'
 import signoutimg from '../img/signout.png'
 import { useAuth } from '../contexts/AuthContext'
-import { useNavigate } from "react-router-dom"
+import { Link , useNavigate } from "react-router-dom"
 import { Button, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import { firestore } from '../firebase'
 import Modal from 'react-modal'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 
 Modal.setAppElement('#root')
 
@@ -56,18 +57,25 @@ export default function Dashboard() {
         return copy;
     }
 
-    const handleReservation = async (restaurantId) => {
+    const handleReservation = async (restaurantId, restaurantName) => {
         try {
             const reservationData = {
-                date: startDate,
+                date: format(startDate, 'MMMM d'),
                 numberOfPeople: numPeople,
-                time: reservationTime,
+                time: format(reservationTime, 'HH:mm'),
                 userEmail: currentUser.email,
-                resturantId: restaurantId
+                resturantId: restaurantId,
+                restaurantName: restaurantName,
+                resId: ''
             };
 
             const docRef = await firestore.collection('reservations').add(reservationData);
-
+            const updatedReservationData = {
+                ...reservationData,
+                resId: docRef.id
+            };
+  
+            await docRef.update(updatedReservationData);
             console.log("Document written with ID: ", docRef.id);
         } catch (error) {
             console.error("Error adding document: ", error);
@@ -83,6 +91,8 @@ export default function Dashboard() {
                 <img src={logo} alt="Logo" />
             </div>
             <div className='buttons'>
+                <Link to='/home' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Restaurants</Link>
+                <Link to='/userreservation' className='button'>Your reservation</Link>
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
             </div>
         </header>
@@ -172,10 +182,10 @@ export default function Dashboard() {
                             showTimeSelectOnly
                             timeIntervals={30}
                             timeCaption="Time"
-                            dateFormat="h:mm aa"
+                            dateFormat="HH:mm"
                         />
                     </div>
-                    <button className='btn' onClick={() => handleReservation(currentRestaurant.id)}>Reserve</button>
+                    <button className='btn' onClick={() => handleReservation(currentRestaurant.id, currentRestaurant.name)}>Reserve</button>
                 </TabPane> 
               </TabContent>
             </Container>

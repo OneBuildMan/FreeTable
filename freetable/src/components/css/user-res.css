@@ -1,0 +1,73 @@
+.user-tables {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.user-tables div {
+    display: block;
+    width: 20%;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.user-table {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    margin: 0 auto;
+}
+.user-user-table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9em;
+    min-width: 350px; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+}
+
+.user-user-table thead tr {
+    background-color: red;
+    color: #ffffff;
+    text-align: left;
+}
+
+.user-user-table th,
+.user-user-table td {
+    padding: 12px 15px;
+}
+
+.user-user-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+/* Zebra striping */
+.user-user-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+/* Hover effect */
+.user-user-table tbody tr:hover {
+    background-color: #f6f6f6;
+}
+
+.user-user-table tbody td {
+    border-bottom: 1px solid #dddddd;
+}
+
+.user-user-table tbody tr:last-of-type {
+    border-bottom: 2px solid red;
+}
+
+.user-user-table button {
+    color: #ffffff;
+    background-color: #ff0000;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.user-user-table button:hover {
+    background-color: black;
+}
