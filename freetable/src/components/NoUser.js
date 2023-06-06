@@ -15,7 +15,6 @@ export default function Dashboard() {
 
     const [restaurants, setRestaurants] = useState([]);
     const [activeTab, setActiveTab] = useState('photo')
-    const [loading, setLoading] = useState(false)
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [restaurantModal, setRestaurantModal] = useState(false)
     const navigate = useNavigate()

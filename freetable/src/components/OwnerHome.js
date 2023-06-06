@@ -258,6 +258,7 @@ export default function Dashboard() {
           </div>
           <div className='buttons'>
             <Link to='/ownerhome' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your restuarant</Link>
+            <Button className='button' onClick={addNewModal}>Add restaurant</Button>
             <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
           </div>
         </header>
@@ -404,14 +405,6 @@ export default function Dashboard() {
                       
                       }}>Close</Button>
               </Modal>
-              <Button className="btn" onClick={addNewModal} style={{
-                      display: 'inline-block',
-                      position: 'absolute',
-                      bottom: '25px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      
-                      }}>Add a new restaurant</Button>
               <Modal
                 isOpen={newRestaurantModal}
                 onRequestClose={closeModal}
@@ -441,7 +434,7 @@ export default function Dashboard() {
                           <Form.Label>Photo</Form.Label>
                           <Form.Control type="file" ref={photoRef} required />
                         </Form.Group>
-                          <Form.Group id="menu">
+                        <Form.Group id="menu">
                           <Form.Label>Menu</Form.Label>
                           <Form.Control type="file" ref={menuRef} required />
                         </Form.Group>
@@ -449,7 +442,7 @@ export default function Dashboard() {
                           {/*for space purpose*/}
                         </div>
                         <Button disabled={loading} className="w-100" type="submit">Add restaurant</Button>
-                        </Form>
+                      </Form>
                     </Card.Body>
                   </Card>
                   <Button className="btn" onClick={closeModal} style={{
