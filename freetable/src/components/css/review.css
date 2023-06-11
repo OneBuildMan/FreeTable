@@ -1,0 +1,13 @@
+.review {
+    display: block;
+    width: 100%;
+    height: 300px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+

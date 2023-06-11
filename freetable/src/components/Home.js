@@ -201,8 +201,9 @@ export default function Dashboard() {
                             value={numPeople}
                             onChange={e => setNumPeople(e.target.value)}
                             min="1"
-                            max="10"
+                            max={currentRestaurant.capacity}
                         />
+                        <p>Available places: {currentRestaurant.capacity}</p>
                     </div>
 
                     <div className='picker'>
