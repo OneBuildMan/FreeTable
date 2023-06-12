@@ -10,6 +10,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, setHours, setMinutes} from 'date-fns';
 import './css/reserve.css'
+import './css/review.css'
 
 Modal.setAppElement('#root')
 
@@ -25,6 +26,7 @@ export default function Dashboard() {
     const [reservationTime, setReservationTime] = useState(new Date());
     const tomorrow = addDays(new Date(), 1);
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
+    const [reviews, setReviews] = useState([])
 
     const times = [
         "09:00",
@@ -58,10 +60,17 @@ export default function Dashboard() {
 
     };
 
+    const fetchReviews = async (resId) => {
+        const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+        setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
+
     useEffect(() => {
         fetchData();
-        console.log(currentUser)
-    }, [currentUser])
+        if (currentRestaurant) {
+            fetchReviews(currentRestaurant.id)
+          }
+    }, [currentUser, currentRestaurant])
 
 
     function handleSignOut(){
@@ -176,9 +185,15 @@ export default function Dashboard() {
                 </div>
                 </TabPane>
                 <TabPane eventKey="reviews" active={activeTab === 'reviews'}>
-                  <div className='btn-cnt'>
-                    <h2>aici o sa vina reviews</h2>
-                  </div>
+                    <div className='review-cont'>
+                        {reviews.map((review) => (
+                        <div key={review.id} className='review-item'>
+                            <h3 className='review-restaurant'>{review.restaurantName}</h3>
+                            <p className='review-text'>{review.text}</p>
+                            <p className='review-user'>By: {review.userId}</p>
+                        </div>
+                        ))}
+                    </div>
                 </TabPane>
                 <TabPane eventKey="reserve" active={activeTab === 'reserve'}>
                     <h2 className='title'>Reserve as {currentUser ? currentUser.email : "Guest"}</h2>
