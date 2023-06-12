@@ -19,7 +19,8 @@ export default function Dashboard() {
     const { currentUser, signout } = useAuth()
     const navigate = useNavigate()
     const [reviewModal, setReviewModal] = useState(false)
-    const [restaurantReview, setRestaurantReview] = useState({});
+    const [restaurantReview, setRestaurantReview] = useState("")
+    const [restaurantName, setRestaurantName] = useState("")
 
     const fetchData = async () => {
         const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get();
@@ -38,24 +39,27 @@ export default function Dashboard() {
     }
 
     function openReviewModal(restaurantName) {
-        setRestaurantReview(restaurantName)
+        setRestaurantName(restaurantName)
         setReviewModal(true)
     }
 
     function closeReviewModal() {
         setRestaurantReview("")
+        setRestaurantName("")
         setReviewModal(false)
     }
 
-    async function leaveReview(restaurantName) {
+    async function leaveReview() {
         const review = {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
           }
         
-          await firestore.collection('reviews').add(review)
-        
+          const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get();
+          const resId = restaurant.docs[0].id;
+          await firestore.collection('restaurants').doc(resId).collection('reviews').add(review);
+          
           setRestaurantReview("")
           closeReviewModal()
     }
@@ -108,7 +112,7 @@ export default function Dashboard() {
                 onChange={(e) => setRestaurantReview(e.target.value)} 
                 placeholder="Write your review here..." 
             />
-            <button className='btn-reserve' onClick={() => leaveReview(restaurantReview)}>Leave review</button>
+            <button className='btn-reserve' onClick={() => leaveReview()}>Leave review</button>
             <Button className="btn" onClick={closeReviewModal} style={{
                 display: 'inline-block',
                 position: 'absolute',
