@@ -7,6 +7,7 @@ import { useNavigate , Link } from "react-router-dom"
 import { firestore , storage } from '../firebase'
 import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import './css/restauranttab.css'
+import './css/review.css'
 
 Modal.setAppElement('#root')
 
@@ -29,6 +30,13 @@ export default function Dashboard() {
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [newRestaurantModal, setNewRestaurantModal] = useState(false)
+    const [reviews, setReviews] = useState([])
+    const [reportModal, setReportModal] = useState(false)
+
+    const fetchReviews = async (resId) => {
+      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+      setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
 
     useEffect(() => {
       const fetchData = async () => {
@@ -45,9 +53,13 @@ export default function Dashboard() {
         }
         }
       };
-  
+
+      if (currentRestaurant) {
+        fetchReviews(currentRestaurant.id)
+      }
+
       fetchData()
-    }, [currentUser])
+    }, [currentUser, currentRestaurant])
 
     function handleSignOut(){
         signout()
@@ -139,6 +151,7 @@ export default function Dashboard() {
       setEditForm(false);
       setDeleteForm(false);
       setNewRestaurantModal(false)
+      setReportModal(false)
     };
 
     async function handleEditForm(e) {
@@ -244,10 +257,15 @@ export default function Dashboard() {
     function closeModal() {
       setRestaurantModal(false)
       setNewRestaurantModal(false)
+      setReportModal(false)
     }
 
     function addNewModal() {
       setNewRestaurantModal(true)
+    }
+
+    function handleReport() {
+      setReportModal(true)
     }
 
     return (
@@ -317,9 +335,23 @@ export default function Dashboard() {
                       </div>
                       </TabPane>
                       <TabPane eventKey="reviews" active={activeTab === 'reviews'}>
-                        <div className='btn-cnt'>
-                          <h2>aici o sa vina reviews</h2>
+                        <div className='review-cont'>
+                            {reviews.map((review) => (
+                              <div key={review.id} className='review-item'>
+                                <h3 className='review-restaurant'>{review.restaurantName}</h3>
+                                <p className='review-text'>{review.text}</p>
+                                <p className='review-user'>By: {review.userId}</p>
+                                <Button className='btn' onClick={handleReport}>Report review</Button>
+                              </div>
+                            ))}
                         </div>
+                        <Modal
+                          isOpen={reportModal}
+                          onRequestClose={handleCloseForm}
+                          contentLabel='Report'>
+                          <h2 className="restaurant-name">Report review</h2>
+                          <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                        </Modal>
                       </TabPane>
                       <TabPane eventKey="settings" active={activeTab === 'settings'}>
                         <div className='btn-cnt'>
