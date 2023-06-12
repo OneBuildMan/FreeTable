@@ -60,7 +60,7 @@ export default function Login() {
                         <div className='w-100 text-center mt-2'>
                              {/*for space purpose*/}
                         </div>
-                        <Button disabled={loading} className="w-100" type="submit">Login</Button>
+                        <Button disabled={loading} className="btn" type="submit" style={{margin: "0 auto", display: "block"}}>Login</Button>
                     </Form>
                 </Card.Body>
             </Card>

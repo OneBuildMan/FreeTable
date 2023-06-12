@@ -32,6 +32,10 @@ export default function Dashboard() {
     const [newRestaurantModal, setNewRestaurantModal] = useState(false)
     const [reviews, setReviews] = useState([])
     const [reportModal, setReportModal] = useState(false)
+    const [reviewReport, setReviewReport] = useState("")
+
+    const [reportedReview, setReportedReview] = useState("")
+    const [reportedUser, setReportedUser] = useState("")
 
     const fetchReviews = async (resId) => {
       const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
@@ -264,8 +268,26 @@ export default function Dashboard() {
       setNewRestaurantModal(true)
     }
 
-    function handleReport() {
+    function handleReport(reportedReview, reportedUser) {
+      setReportedReview(reportedReview)
+      setReportedUser(reportedUser)
       setReportModal(true)
+    }
+
+    async function reportReview() {
+      const report = {
+        text: reviewReport,
+        reporter: currentUser.email, 
+        review: reportedReview,
+        reportedUser: reportedUser
+      }
+    
+      await firestore.collection('reports').add(report);
+        
+      setReviewReport("")
+      setReportedReview("")
+      setReportedUser("")
+      closeModal()
     }
 
     return (
@@ -341,7 +363,7 @@ export default function Dashboard() {
                                 <h3 className='review-restaurant'>{review.restaurantName}</h3>
                                 <p className='review-text'>{review.text}</p>
                                 <p className='review-user'>By: {review.userId}</p>
-                                <Button className='btn' onClick={handleReport}>Report review</Button>
+                                <Button className='btn' onClick={() => handleReport(review.text, review.userId)}>Report review</Button>
                               </div>
                             ))}
                         </div>
@@ -350,7 +372,13 @@ export default function Dashboard() {
                           onRequestClose={handleCloseForm}
                           contentLabel='Report'>
                           <h2 className="restaurant-name">Report review</h2>
-                          <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                          <textarea  
+                              className='review'
+                              onChange={(e) => setReviewReport(e.target.value)} 
+                              placeholder="Write your report here..." 
+                          />
+                          <button className='btn' onClick={() => reportReview()} style={{margin: "0 auto", display: "block"}}>Report review</button>
+                          <Button disabled={loading} className="btn" type="submit" onClick={handleCloseForm} style={{margin: "0 auto", display: "block"}}>Cancel</Button>
                         </Modal>
                       </TabPane>
                       <TabPane eventKey="settings" active={activeTab === 'settings'}>
