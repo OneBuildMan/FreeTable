@@ -9,6 +9,8 @@ import Modal from 'react-modal'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, setHours, setMinutes} from 'date-fns';
+import './css/reserve.css'
+import './css/review.css'
 
 Modal.setAppElement('#root')
 
@@ -20,10 +22,37 @@ export default function Dashboard() {
     const [restaurants, setRestaurants] = useState([]);
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [startDate, setStartDate] = useState(new Date());
-    const [numPeople, setNumPeople] = useState(1);
+    const [numPeople, setNumPeople] = useState('');
     const [reservationTime, setReservationTime] = useState(new Date());
     const tomorrow = addDays(new Date(), 1);
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
+    const [reviews, setReviews] = useState([])
+
+    const times = [
+        "09:00",
+        "09:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:30",
+        "17:00",
+        "17:30",
+        "18:00",
+        "18:30",
+        "19:30",
+        "20:00",
+        "20:30",
+        "21:00",
+    ]
 
     const fetchData = async () => {
         const restaurantCollection = await firestore.collection('restaurants').get()
@@ -31,10 +60,17 @@ export default function Dashboard() {
 
     };
 
+    const fetchReviews = async (resId) => {
+        const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+        setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
+
     useEffect(() => {
         fetchData();
-        console.log(currentUser)
-    }, [currentUser])
+        if (currentRestaurant) {
+            fetchReviews(currentRestaurant.id)
+          }
+    }, [currentUser, currentRestaurant])
 
 
     function handleSignOut(){
@@ -64,7 +100,7 @@ export default function Dashboard() {
             const reservationData = {
                 date: format(startDate, 'MMMM d'),
                 numberOfPeople: numPeople,
-                time: format(reservationTime, 'HH:mm'),
+                time: reservationTime,
                 userEmail: currentUser.email,
                 resturantId: restaurantId,
                 restaurantName: restaurantName,
@@ -149,9 +185,15 @@ export default function Dashboard() {
                 </div>
                 </TabPane>
                 <TabPane eventKey="reviews" active={activeTab === 'reviews'}>
-                  <div className='btn-cnt'>
-                    <h2>aici o sa vina reviews</h2>
-                  </div>
+                    <div className='review-cont'>
+                        {reviews.map((review) => (
+                        <div key={review.id} className='review-item'>
+                            <h3 className='review-restaurant'>{review.restaurantName}</h3>
+                            <p className='review-text'>{review.text}</p>
+                            <p className='review-user'>By: {review.userId}</p>
+                        </div>
+                        ))}
+                    </div>
                 </TabPane>
                 <TabPane eventKey="reserve" active={activeTab === 'reserve'}>
                     <h2 className='title'>Reserve as {currentUser ? currentUser.email : "Guest"}</h2>
@@ -169,28 +211,25 @@ export default function Dashboard() {
 
                     <div className='picker'>
                         <label className='people'>Select number of people:</label>
-                        <select value={numPeople} onChange={(e) => setNumPeople(parseInt(e.target.value))}>
-                            {[...Array(10).keys()].map(num =>
-                                <option key={num + 1} value={num + 1}>{num + 1}</option>
-                            )}
-                        </select>
+                        <input
+                            type="number"
+                            value={numPeople}
+                            onChange={e => setNumPeople(e.target.value)}
+                            min="1"
+                            max={currentRestaurant.capacity}
+                        />
+                        <p>Available places: {currentRestaurant.capacity}</p>
                     </div>
 
                     <div className='picker'>
                         <label className='time'>Select reservation time:</label>
-                        <DatePicker
-                            selected={reservationTime}
-                            onChange={(time) => setReservationTime(time)}
-                            showTimeSelect
-                            showTimeSelectOnly
-                            timeIntervals={30}
-                            timeCaption="Time"
-                            dateFormat="HH:mm"
-                            minTime={new Date().setHours(9, 0)}
-                            maxTime={new Date().setHours(20, 0)}
-                        />
+                        <select value={reservationTime} onChange={e => setReservationTime(e.target.value)}>
+                            {times.map((time, index) => (
+                                <option key={index} value={time}>{time}</option>
+                            ))}
+                        </select>
                     </div>
-                    <button className='btn' onClick={() => handleReservation(currentRestaurant.id, currentRestaurant.name)}>Reserve</button>
+                    <button className='btn-reserve' onClick={() => handleReservation(currentRestaurant.id, currentRestaurant.name)}>Reserve</button>
                 </TabPane> 
               </TabContent>
             </Container>

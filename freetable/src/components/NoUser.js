@@ -4,6 +4,7 @@ import './css/header.css'
 import './css/button.css'
 import './css/restauranttab.css'
 import './css/restaurantbox.css'
+import './css/review.css'
 import Modal from 'react-modal'
 import { firestore } from '../firebase'
 import { Button, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
@@ -17,6 +18,8 @@ export default function Dashboard() {
     const [activeTab, setActiveTab] = useState('photo')
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [restaurantModal, setRestaurantModal] = useState(false)
+    const [reviews, setReviews] = useState([])
+
     const navigate = useNavigate()
 
     const fetchData = async () => {
@@ -24,9 +27,17 @@ export default function Dashboard() {
         setRestaurants(restaurantCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     };
 
+    const fetchReviews = async (resId) => {
+      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+      setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
+
     useEffect(() => {
         fetchData();
-    }, []
+        if (currentRestaurant) {
+          fetchReviews(currentRestaurant.id)
+        }
+    }, [currentRestaurant]
     )
 
     function openModal(restaurant) {
@@ -104,8 +115,14 @@ export default function Dashboard() {
                 </div>
                 </TabPane>
                 <TabPane eventKey="reviews" active={activeTab === 'reviews'}>
-                  <div className='btn-cnt'>
-                    <h2>aici o sa vina reviews</h2>
+                  <div className='review-cont'>
+                    {reviews.map((review) => (
+                      <div key={review.id} className='review-item'>
+                        <h3 className='review-restaurant'>{review.restaurantName}</h3>
+                        <p className='review-text'>{review.text}</p>
+                        <p className='review-user'>By: {review.userId}</p>
+                      </div>
+                    ))}
                   </div>
                 </TabPane>
                 <TabPane eventKey="reserve" active={activeTab === 'reserve'}>

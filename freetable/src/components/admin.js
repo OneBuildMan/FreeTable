@@ -4,6 +4,7 @@ import signout from '../img/signout.png'
 import { Link } from "react-router-dom"
 import './css/button.css'
 import './css/userstable.css'
+import './css/admin-table.css'
 import { useEffect, useState } from 'react'
 import { firestore } from '../firebase'
 
@@ -58,10 +59,10 @@ export default function Dashboard() {
                 <Link to='/login'><img src={signout} alt="signout" className='sign-out-btn'/></Link>
             </div>
         </header>
-        <div className='tables'>
-            <div className='table'>
+        <div className='admin-tables'>
+            <div className='admin-table'>
             <h1>Users</h1>
-            <table className='user-table'>
+            <table className='admin-table'>
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -81,9 +82,9 @@ export default function Dashboard() {
             </table>
             </div>
             
-            <div className='table'>
+            <div className='admin-table'>
             <h1>Owners</h1>
-            <table className='user-table'>
+            <table className='admin-table'>
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -103,9 +104,9 @@ export default function Dashboard() {
             </table>
             </div>
 
-            <div className='table'>
+            <div className='admin-table'>
             <h1>Banned users</h1>
-            <table className='user-table'>
+            <table className='admin-table'>
                 <thead>
                     <tr>
                         <th>Name</th>

@@ -3,16 +3,24 @@ import logo from '../img/logo.png'
 import { Link } from "react-router-dom"
 import './css/button.css'
 import './css/user-res.css'
+import './css/review.css'
 import { useEffect, useState } from 'react'
 import { firestore } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from "react-router-dom"
 import signoutimg from '../img/signout.png'
+import Modal from 'react-modal'
+import { Button } from 'react-bootstrap'
+
+Modal.setAppElement('#root')
 
 export default function Dashboard() {
     const [reservations, setReservations] = useState([])
     const { currentUser, signout } = useAuth()
     const navigate = useNavigate()
+    const [reviewModal, setReviewModal] = useState(false)
+    const [restaurantReview, setRestaurantReview] = useState("")
+    const [restaurantName, setRestaurantName] = useState("")
 
     const fetchData = async () => {
         const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get();
@@ -21,14 +29,39 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchData();
-    }, []
-    )
+    }, [currentUser])
 
     function handleSignOut(){
         signout()
         .then(()=>{
             navigate('/login')
         }) 
+    }
+
+    function openReviewModal(restaurantName) {
+        setRestaurantName(restaurantName)
+        setReviewModal(true)
+    }
+
+    function closeReviewModal() {
+        setRestaurantReview("")
+        setRestaurantName("")
+        setReviewModal(false)
+    }
+
+    async function leaveReview() {
+        const review = {
+            text: restaurantReview,
+            userId: currentUser.email, 
+            restaurantName: restaurantName,
+          }
+        
+          const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get();
+          const resId = restaurant.docs[0].id;
+          await firestore.collection('restaurants').doc(resId).collection('reviews').add(review);
+          
+          setRestaurantReview("")
+          closeReviewModal()
     }
 
     return (
@@ -61,13 +94,35 @@ export default function Dashboard() {
                             <td>{reservation.restaurantName}</td>
                             <td>{reservation.date}</td>
                             <td>{reservation.time}</td>
-                            <td><button>Leave a review</button></td>
+                            <td><button onClick={() => openReviewModal(reservation.restaurantName)}>Leave a review</button></td>
                         </tr>
                     ))}
                 </tbody>
             </table>
             </div>
         </div>
+
+        <Modal
+            isOpen={reviewModal}
+            onRequestClose={closeReviewModal}
+            contentLabel='LeaveReview'>
+            <h2 className="restaurant-name">Leave a review</h2>
+            <textarea  
+                className='review'
+                onChange={(e) => setRestaurantReview(e.target.value)} 
+                placeholder="Write your review here..." 
+            />
+            <button className='btn-reserve' onClick={() => leaveReview()}>Leave review</button>
+            <Button className="btn" onClick={closeReviewModal} style={{
+                display: 'inline-block',
+                position: 'absolute',
+                bottom: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                
+                }}>Close</Button>
+        </Modal>
+
         </>
     )
 }
