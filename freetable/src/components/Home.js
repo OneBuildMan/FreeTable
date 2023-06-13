@@ -11,6 +11,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format, setHours, setMinutes} from 'date-fns';
 import './css/reserve.css'
 import './css/review.css'
+import emailjs from '@emailjs/browser';
 
 Modal.setAppElement('#root')
 
@@ -124,6 +125,12 @@ export default function Dashboard() {
         } catch (error) {
             console.error("Error adding document: ", error);
         }
+
+        const template = {
+            to_email: currentUser.email,
+            message: restaurantName + " at " + reservationTime,
+        }
+        emailjs.send('service_uqpvqhw', 'template_88pwz1d', template, 'dBzO3rpxjsvE0RGC4')
         handleDatePick(startDate, restaurantId)
         setReservationTime('')
         setRestaurantModal(false)
