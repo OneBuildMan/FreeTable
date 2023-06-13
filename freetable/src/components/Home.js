@@ -22,11 +22,14 @@ export default function Dashboard() {
     const [restaurants, setRestaurants] = useState([]);
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [startDate, setStartDate] = useState(new Date());
-    const [numPeople, setNumPeople] = useState('');
+    const [numPeople, setNumPeople] = useState(0);
     const [reservationTime, setReservationTime] = useState(new Date());
     const tomorrow = addDays(new Date(), 1);
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
     const [reviews, setReviews] = useState([])
+    const [availableChairs, setAvailablehairs] = useState(0)
+    const [occupiedChairs, setOccupiedChairs] = useState(0)
+    const [reservations, setReservations] = useState([])
 
     const times = [
         "09:00",
@@ -58,15 +61,18 @@ export default function Dashboard() {
         const restaurantCollection = await firestore.collection('restaurants').get()
         setRestaurants(restaurantCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
 
-    };
+        const reservationsCollection = await firestore.collection('reservations').get()
+        setReservations(reservationsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
 
     const fetchReviews = async (resId) => {
-        const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+        const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get()
         setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
+
     useEffect(() => {
-        fetchData();
+        fetchData()
         if (currentRestaurant) {
             fetchReviews(currentRestaurant.id)
           }
@@ -121,6 +127,17 @@ export default function Dashboard() {
 
         setRestaurantModal(false)
     };
+
+    const handleDatePick = async(date, resId) => {
+        const formatD = format(date, 'MMMM d');
+
+        const resCollection = await firestore.collection('reservations').where("resturantId", "==", resId).where("date", "==", formatD).get()
+        const reservations = resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+        setReservations(reservations)
+
+        const total = reservations.reduce((total, reservation) => total + reservation.numberOfPeople, 0);
+        setOccupiedChairs(total)
+    }
 
     return (
         <>
@@ -188,7 +205,6 @@ export default function Dashboard() {
                     <div className='review-cont'>
                         {reviews.map((review) => (
                         <div key={review.id} className='review-item'>
-                            <h3 className='review-restaurant'>{review.restaurantName}</h3>
                             <p className='review-text'>{review.text}</p>
                             <p className='review-user'>By: {review.userId}</p>
                         </div>
@@ -201,7 +217,7 @@ export default function Dashboard() {
                         <label className='date'>Select a date:</label>
                         <DatePicker
                             selected={startDate}
-                            onChange={(date) => setStartDate(date)}
+                            onChange={(date) => {setStartDate(date); handleDatePick(date, currentRestaurant.id)}}
                             dateFormat='MMMM d'
                             minDate={tomorrow}
                             minTime={minDateTime}
@@ -211,14 +227,17 @@ export default function Dashboard() {
 
                     <div className='picker'>
                         <label className='people'>Select number of people:</label>
-                        <input
-                            type="number"
+                        <select
                             value={numPeople}
-                            onChange={e => setNumPeople(e.target.value)}
-                            min="1"
-                            max={currentRestaurant.capacity}
-                        />
-                        <p>Available places: {currentRestaurant.capacity}</p>
+                            onChange={e => setNumPeople(Number(e.target.value))}
+                        >
+                            {Array.from({ length: currentRestaurant.capacity-occupiedChairs }, (_, i) => i + 1).map((number) => (
+                                <option key={number} value={number}>
+                                    {number}
+                                </option>
+                            ))}
+                        </select>
+                        <p>Available places: {currentRestaurant.capacity-occupiedChairs}</p>
                     </div>
 
                     <div className='picker'>

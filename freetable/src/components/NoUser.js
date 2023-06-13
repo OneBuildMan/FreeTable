@@ -118,7 +118,6 @@ export default function Dashboard() {
                   <div className='review-cont'>
                     {reviews.map((review) => (
                       <div key={review.id} className='review-item'>
-                        <h3 className='review-restaurant'>{review.restaurantName}</h3>
                         <p className='review-text'>{review.text}</p>
                         <p className='review-user'>By: {review.userId}</p>
                       </div>
