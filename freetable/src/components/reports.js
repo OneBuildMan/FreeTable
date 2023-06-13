@@ -28,20 +28,11 @@ export default function Dashboard() {
                 await firestore.collection('users').doc(userId).update({
                 banned: 'yes'
             })
-
-            const restaurant = await firestore.collection('restaurants').get()
-            restaurant.forEach(async (resDoc) => {
-                const reviews = await resDoc.ref.collection('reviews').get()
-                reviews.forEach(async (revDoc) => {
-                    if(revDoc.data().userId === userName){
-                        await revDoc.ref.delete()
-                    }
-                })
-            })
         })
-            await firestore.collection('reports').doc(reportId).delete()
-            fetchData()
-        }
+
+        await firestore.collection('reports').doc(reportId).delete()
+        fetchData()
+    }
     }
 
     const deleteReport = async(reportId) =>  {
