@@ -31,7 +31,7 @@ export default function Signup() {
             await signup(nameRef.current.value, emailRef.current.value, passwordRef.current.value, roleRef.current.value)
             navigate('/login')
         } catch (error) {
-            console.error(error);
+            console.error(error)
             setError('Failed to create an accout')
         }
         

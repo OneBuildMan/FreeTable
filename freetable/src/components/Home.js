@@ -6,12 +6,12 @@ import { Link , useNavigate } from "react-router-dom"
 import { Button, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import { firestore } from '../firebase'
 import Modal from 'react-modal'
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { format, setHours, setMinutes} from 'date-fns';
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { format, setHours, setMinutes} from 'date-fns'
 import './css/reserve.css'
 import './css/review.css'
-import emailjs from '@emailjs/browser';
+import emailjs from '@emailjs/browser'
 
 Modal.setAppElement('#root')
 
@@ -20,13 +20,13 @@ export default function Dashboard() {
     const { currentUser, signout } = useAuth()
     const [activeTab, setActiveTab] = useState('photo')
     const [currentRestaurant, setCurrentRestaurant] = useState({})
-    const [restaurants, setRestaurants] = useState([]);
+    const [restaurants, setRestaurants] = useState([])
     const [restaurantModal, setRestaurantModal] = useState(false)
-    const [startDate, setStartDate] = useState(new Date());
-    const [numPeople, setNumPeople] = useState(0);
-    const [reservationTime, setReservationTime] = useState();
-    const tomorrow = addDays(new Date(), 1);
-    const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
+    const [startDate, setStartDate] = useState(new Date())
+    const [numPeople, setNumPeople] = useState(0)
+    const [reservationTime, setReservationTime] = useState()
+    const tomorrow = addDays(new Date(), 1)
+    const minDateTime = setHours(setMinutes(tomorrow, 0), 0)
     const [reviews, setReviews] = useState([])
     const [occupiedChairs, setOccupiedChairs] = useState(0)
     // eslint-disable-next-line
@@ -97,8 +97,8 @@ export default function Dashboard() {
     }
 
     function addDays(date, days) {
-        const copy = new Date(Number(date));
-        copy.setDate(date.getDate() + days);
+        const copy = new Date(Number(date))
+        copy.setDate(date.getDate() + days)
         return copy;
     }
 
@@ -121,14 +121,14 @@ export default function Dashboard() {
             };
   
             await docRef.update(updatedReservationData);
-            console.log("Document written with ID: ", docRef.id);
+            console.log("Document written with ID: ", docRef.id)
         } catch (error) {
-            console.error("Error adding document: ", error);
+            console.error("Error adding document: ", error)
         }
 
         const template = {
             to_email: currentUser.email,
-            message: restaurantName + " at " + reservationTime,
+            message: restaurantName + " at " + reservationTime + " in " + format(startDate, 'MMMM d'),
         }
         emailjs.send('service_uqpvqhw', 'template_88pwz1d', template, 'dBzO3rpxjsvE0RGC4')
         handleDatePick(startDate, restaurantId)

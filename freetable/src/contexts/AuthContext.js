@@ -24,14 +24,14 @@ export function AuthProvider( {children}) {
       }
 
     async function login(email, password) {
-        const res = await auth.signInWithEmailAndPassword(email, password);
-        const uid = res.user.uid;
-        const userDoc = await firestore.collection('users').doc(uid).get();
-        return { ...res.user, role: userDoc.data().role , banned: userDoc.data().banned };
+        const res = await auth.signInWithEmailAndPassword(email, password)
+        const uid = res.user.uid
+        const userDoc = await firestore.collection('users').doc(uid).get()
+        return { ...res.user, role: userDoc.data().role , banned: userDoc.data().banned }
     }
 
     function signout() {
-        return auth.signOut();
+        return auth.signOut()
     }
 
     useEffect(() => {
