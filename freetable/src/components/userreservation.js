@@ -54,12 +54,15 @@ export default function Dashboard() {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
+            
         }
         
         const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get();
         const resId = restaurant.docs[0].id;
-        await firestore.collection('restaurants').doc(resId).collection('reviews').add(review);
-          
+        let doc = await firestore.collection('restaurants').doc(resId).collection('reviews').add(review);
+        let reviewId = doc.id
+        await doc.update({id: reviewId})
+
         setRestaurantReview("")
         closeReviewModal()
     }

@@ -20,16 +20,10 @@ export default function Dashboard() {
         fetchData()
     }, [])
 
-    const banUser = async (userName, reportId) => {
-        if(window.confirm('Are you sure you want to ban this user? This will delete all his reviews')){
-            const user = await firestore.collection('users').where("email", "==", userName).get()
-            user.forEach(async (userDoc) => {
-                const userId = userDoc.id
-                await firestore.collection('users').doc(userId).update({
-                banned: 'yes'
-            })
-        })
-
+    const deleteReview = async (reportId, resId, reviewId) => {
+        if(window.confirm('Are you sure you want to delete this review?')){
+        
+        await firestore.collection('restaurants').doc(resId).collection('reviews').doc(reviewId).delete()
         await firestore.collection('reports').doc(reportId).delete()
         fetchData()
     }
@@ -65,8 +59,8 @@ export default function Dashboard() {
                             <th>Reporter</th>
                             <th>Reported review</th>
                             <th>Reason</th>
+                            <th>Delete report</th>
                             <th>Delete review</th>
-                            <th>Ban user</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,7 +71,7 @@ export default function Dashboard() {
                                 <td>{report.review}</td>
                                 <td>{report.text}</td>
                                 <td><button onClick={() => deleteReport(report.id)}>Delete report</button></td>
-                                <td><button onClick={() => banUser(report.reportedUser, report.id)}>Ban user</button></td>
+                                <td><button onClick={() => deleteReview(report.id, report.restaurantId, report.reviewId)}>Delete review</button></td>
                             </tr>
                         ))}
                     </tbody>

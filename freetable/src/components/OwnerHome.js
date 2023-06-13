@@ -31,6 +31,8 @@ export default function Dashboard() {
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [newRestaurantModal, setNewRestaurantModal] = useState(false)
     const [reviews, setReviews] = useState([])
+    const [reviewId, setReviewId] = useState("")
+    const [restaurantId, setRestaurantId] = useState("")
     const [reportModal, setReportModal] = useState(false)
     const [reviewReport, setReviewReport] = useState("")
 
@@ -268,9 +270,11 @@ export default function Dashboard() {
       setNewRestaurantModal(true)
     }
 
-    function handleReport(reportedReview, reportedUser) {
+    function handleReport(reportedReview, reportedUser, reviewId, restaurantId) {
       setReportedReview(reportedReview)
       setReportedUser(reportedUser)
+      setReviewId(reviewId)
+      setRestaurantId(restaurantId)
       setReportModal(true)
     }
 
@@ -279,7 +283,9 @@ export default function Dashboard() {
         text: reviewReport,
         reporter: currentUser.email, 
         review: reportedReview,
-        reportedUser: reportedUser
+        reportedUser: reportedUser,
+        reviewId: reviewId,
+        restaurantId: restaurantId
       }
     
       let doc = await firestore.collection('reports').add(report);
@@ -290,6 +296,8 @@ export default function Dashboard() {
       setReviewReport("")
       setReportedReview("")
       setReportedUser("")
+      setReviewId("")
+      setRestaurantId("")
       closeModal()
     }
 
@@ -366,7 +374,7 @@ export default function Dashboard() {
                                 <h3 className='review-restaurant'>{review.restaurantName}</h3>
                                 <p className='review-text'>{review.text}</p>
                                 <p className='review-user'>By: {review.userId}</p>
-                                <Button className='btn' onClick={() => handleReport(review.text, review.userId)}>Report review</Button>
+                                <Button className='btn' onClick={() => handleReport(review.text, review.userId, review.id, currentRestaurant.id)}>Report review</Button>
                               </div>
                             ))}
                         </div>
