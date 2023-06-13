@@ -28,6 +28,7 @@ export default function Dashboard() {
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
     const [reviews, setReviews] = useState([])
     const [occupiedChairs, setOccupiedChairs] = useState(0)
+    // eslint-disable-next-line
     const [reservations, setReservations] = useState([])
 
     const times = [
