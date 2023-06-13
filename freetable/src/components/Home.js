@@ -27,7 +27,6 @@ export default function Dashboard() {
     const tomorrow = addDays(new Date(), 1);
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
     const [reviews, setReviews] = useState([])
-    const [availableChairs, setAvailablehairs] = useState(0)
     const [occupiedChairs, setOccupiedChairs] = useState(0)
     const [reservations, setReservations] = useState([])
 
@@ -124,7 +123,7 @@ export default function Dashboard() {
         } catch (error) {
             console.error("Error adding document: ", error);
         }
-
+        handleDatePick(startDate, restaurantId)
         setRestaurantModal(false)
     };
 
@@ -133,7 +132,6 @@ export default function Dashboard() {
 
         const resCollection = await firestore.collection('reservations').where("resturantId", "==", resId).where("date", "==", formatD).get()
         const reservations = resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-        setReservations(reservations)
 
         const total = reservations.reduce((total, reservation) => total + reservation.numberOfPeople, 0);
         setOccupiedChairs(total)
