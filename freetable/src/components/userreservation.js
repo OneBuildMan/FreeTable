@@ -23,12 +23,12 @@ export default function Dashboard() {
     const [restaurantName, setRestaurantName] = useState("")
 
     const fetchData = async () => {
-        const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get();
+        const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get()
         setReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData()
     }, [currentUser])
 
     function handleSignOut(){
@@ -54,14 +54,22 @@ export default function Dashboard() {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
-          }
+            
+        }
         
-          const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get();
-          const resId = restaurant.docs[0].id;
-          await firestore.collection('restaurants').doc(resId).collection('reviews').add(review);
-          
-          setRestaurantReview("")
-          closeReviewModal()
+        const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get()
+        const resId = restaurant.docs[0].id
+        let doc = await firestore.collection('restaurants').doc(resId).collection('reviews').add(review)
+        let reviewId = doc.id
+        await doc.update({id: reviewId})
+
+        setRestaurantReview("")
+        closeReviewModal()
+    }
+
+    async function deleteReservation(resId) {
+        await firestore.collection('reservations').doc(resId).delete()
+        fetchData()
     }
 
     return (
@@ -85,7 +93,8 @@ export default function Dashboard() {
                         <th>Restaurant Name</th>
                         <th>Date</th>
                         <th>Time</th>
-                        <th>Action</th>
+                        <th>Review</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,7 +103,8 @@ export default function Dashboard() {
                             <td>{reservation.restaurantName}</td>
                             <td>{reservation.date}</td>
                             <td>{reservation.time}</td>
-                            <td><button onClick={() => openReviewModal(reservation.restaurantName)}>Leave a review</button></td>
+                            <td><button onClick={() => openReviewModal(reservation.restaurantName)}>Review it</button></td>
+                            <td><button onClick={() => deleteReservation(reservation.id)}>Delete reservation</button></td>
                         </tr>
                     ))}
                 </tbody>

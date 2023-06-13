@@ -8,6 +8,7 @@ import { firestore , storage } from '../firebase'
 import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from 'react-bootstrap'
 import './css/restauranttab.css'
 import './css/review.css'
+import './css/res-rez.css'
 
 Modal.setAppElement('#root')
 
@@ -31,11 +32,28 @@ export default function Dashboard() {
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [newRestaurantModal, setNewRestaurantModal] = useState(false)
     const [reviews, setReviews] = useState([])
+    const [reviewId, setReviewId] = useState("")
+    const [restaurantId, setRestaurantId] = useState("")
     const [reportModal, setReportModal] = useState(false)
+    const [reviewReport, setReviewReport] = useState("")
+    const [reservations, setReservations] = useState([])
+    const [reportedReview, setReportedReview] = useState("")
+    const [reportedUser, setReportedUser] = useState("")
+    const [r1, setr1] = useState([])
 
     const fetchReviews = async (resId) => {
-      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get()
       setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
+
+    const fetchReservations = async () => {
+      const reservationsCollection = await firestore.collection('reservations').get()
+      setReservations(reservationsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
+
+    const currentReservations = (resId) => {
+      const currCollection = reservations.filter(reservation => reservation['resturantId'] === resId)
+      setr1(currCollection)
     }
 
     useEffect(() => {
@@ -56,6 +74,8 @@ export default function Dashboard() {
 
       if (currentRestaurant) {
         fetchReviews(currentRestaurant.id)
+        fetchReservations()
+        currentReservations(currentRestaurant.id)
       }
 
       fetchData()
@@ -264,8 +284,35 @@ export default function Dashboard() {
       setNewRestaurantModal(true)
     }
 
-    function handleReport() {
+    function handleReport(reportedReview, reportedUser, reviewId, restaurantId) {
+      setReportedReview(reportedReview)
+      setReportedUser(reportedUser)
+      setReviewId(reviewId)
+      setRestaurantId(restaurantId)
       setReportModal(true)
+    }
+
+    async function reportReview() {
+      const report = {
+        text: reviewReport,
+        reporter: currentUser.email, 
+        review: reportedReview,
+        reportedUser: reportedUser,
+        reviewId: reviewId,
+        restaurantId: restaurantId
+      }
+    
+      let doc = await firestore.collection('reports').add(report);
+      let reportId = doc.id
+
+      await doc.update({id: reportId})
+      
+      setReviewReport("")
+      setReportedReview("")
+      setReportedUser("")
+      setReviewId("")
+      setRestaurantId("")
+      closeModal()
     }
 
     return (
@@ -314,6 +361,9 @@ export default function Dashboard() {
                         <Nav.Link eventKey="reviews">Reviews</Nav.Link>
                       </Nav.Item>
                       <Nav.Item>
+                        <Nav.Link eventKey="reservations">Reservations</Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item>
                         <Nav.Link eventKey="settings">Settings</Nav.Link>
                       </Nav.Item>
                     </Nav>
@@ -338,10 +388,9 @@ export default function Dashboard() {
                         <div className='review-cont'>
                             {reviews.map((review) => (
                               <div key={review.id} className='review-item'>
-                                <h3 className='review-restaurant'>{review.restaurantName}</h3>
                                 <p className='review-text'>{review.text}</p>
                                 <p className='review-user'>By: {review.userId}</p>
-                                <Button className='btn' onClick={handleReport}>Report review</Button>
+                                <Button className='btn' onClick={() => handleReport(review.text, review.userId, review.id, currentRestaurant.id)}>Report review</Button>
                               </div>
                             ))}
                         </div>
@@ -350,8 +399,39 @@ export default function Dashboard() {
                           onRequestClose={handleCloseForm}
                           contentLabel='Report'>
                           <h2 className="restaurant-name">Report review</h2>
-                          <Button disabled={loading} className="w-100" type="submit" onClick={handleCloseForm}>Cancel</Button>
+                          <textarea  
+                              className='review'
+                              onChange={(e) => setReviewReport(e.target.value)} 
+                              placeholder="Write your report here..." 
+                          />
+                          <button className='btn' onClick={() => reportReview()} style={{margin: "0 auto", display: "block"}}>Report review</button>
+                          <Button disabled={loading} className="btn" type="submit" onClick={handleCloseForm} style={{margin: "0 auto", display: "block"}}>Cancel</Button>
                         </Modal>
+                      </TabPane>
+                      <TabPane eventKey="reservations" active={activeTab === 'reservations'}>
+                      <div className='res-rezs'>
+                        <div className='res-rez'>
+                        <h1>Reservations on your restaurant</h1>
+                        <table className='res-rez-table'>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {r1.map(reservation => (
+                                    <tr key={reservation.resId}>
+                                        <td>{reservation.userEmail}</td>
+                                        <td>{reservation.date}</td>
+                                        <td>{reservation.time}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        </div>
+                        </div>
                       </TabPane>
                       <TabPane eventKey="settings" active={activeTab === 'settings'}>
                         <div className='btn-cnt'>

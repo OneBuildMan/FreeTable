@@ -31,7 +31,7 @@ export default function Signup() {
             await signup(nameRef.current.value, emailRef.current.value, passwordRef.current.value, roleRef.current.value)
             navigate('/login')
         } catch (error) {
-            console.error(error);
+            console.error(error)
             setError('Failed to create an accout')
         }
         
@@ -73,7 +73,7 @@ export default function Signup() {
                         <div className='w-100 text-center mt-2'>
                              {/*for space purpose*/}
                         </div>
-                        <Button disabled={loading} className="w-100" type="submit">Sign Up</Button>
+                        <Button disabled={loading} className="btn" type="submit" style={{margin: "0 auto", display: "block"}}>Sign Up</Button>
                     </Form>
                 </Card.Body>
             </Card>

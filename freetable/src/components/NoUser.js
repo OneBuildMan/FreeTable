@@ -14,7 +14,7 @@ Modal.setAppElement('#root')
 
 export default function Dashboard() {
 
-    const [restaurants, setRestaurants] = useState([]);
+    const [restaurants, setRestaurants] = useState([])
     const [activeTab, setActiveTab] = useState('photo')
     const [currentRestaurant, setCurrentRestaurant] = useState({})
     const [restaurantModal, setRestaurantModal] = useState(false)
@@ -28,7 +28,7 @@ export default function Dashboard() {
     };
 
     const fetchReviews = async (resId) => {
-      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get();
+      const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get()
       setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
@@ -118,7 +118,6 @@ export default function Dashboard() {
                   <div className='review-cont'>
                     {reviews.map((review) => (
                       <div key={review.id} className='review-item'>
-                        <h3 className='review-restaurant'>{review.restaurantName}</h3>
                         <p className='review-text'>{review.text}</p>
                         <p className='review-user'>By: {review.userId}</p>
                       </div>
