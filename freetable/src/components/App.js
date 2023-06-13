@@ -8,6 +8,7 @@ import OwnerHome from "./OwnerHome"
 import Admin from "./admin"
 import NoUser from "./NoUser"
 import UserRes from "./userreservation"
+import Reports from "./reports"
 import './css/header.css'
 import logo from '../img/logo.png'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
@@ -47,6 +48,7 @@ function App() {
             <Route path='/ownerhome' element={<OwnerHome />} />
             <Route path='/admin' element={<Admin />} />
             <Route path='/userreservation' element={<UserRes />} />
+            <Route path='/reports' element={<Reports />} />
           </Routes>
         </AuthProvider>
       </Router><footer>{'Licenta CTI RO 2023'}</footer>

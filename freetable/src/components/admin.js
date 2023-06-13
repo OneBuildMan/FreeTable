@@ -56,6 +56,8 @@ export default function Dashboard() {
                 <img src={logo} alt="Logo" />
             </div>
             <div className='buttons'>
+                <Link to='/admin' style={{ backgroundColor: 'red', color: 'white' }} className='button'>All users</Link>
+                <Link to='/reports' className='button'>Reports</Link>
                 <Link to='/login'><img src={signout} alt="signout" className='sign-out-btn'/></Link>
             </div>
         </header>

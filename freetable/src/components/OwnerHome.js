@@ -282,8 +282,11 @@ export default function Dashboard() {
         reportedUser: reportedUser
       }
     
-      await firestore.collection('reports').add(report);
-        
+      let doc = await firestore.collection('reports').add(report);
+      let reportId = doc.id
+
+      await doc.update({id: reportId})
+      
       setReviewReport("")
       setReportedReview("")
       setReportedUser("")
