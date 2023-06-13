@@ -23,7 +23,7 @@ export default function Dashboard() {
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [startDate, setStartDate] = useState(new Date());
     const [numPeople, setNumPeople] = useState(0);
-    const [reservationTime, setReservationTime] = useState(new Date());
+    const [reservationTime, setReservationTime] = useState();
     const tomorrow = addDays(new Date(), 1);
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0);
     const [reviews, setReviews] = useState([])
@@ -125,8 +125,9 @@ export default function Dashboard() {
             console.error("Error adding document: ", error);
         }
         handleDatePick(startDate, restaurantId)
+        setReservationTime('')
         setRestaurantModal(false)
-    };
+    }
 
     const handleDatePick = async(date, resId) => {
         const formatD = format(date, 'MMMM d');
@@ -240,7 +241,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className='picker'>
-                        <label className='time'>Select reservation time:</label>
+                        <label className='select-time'>Select reservation time:</label>
                         <select value={reservationTime} onChange={e => setReservationTime(e.target.value)}>
                             {times.map((time, index) => (
                                 <option key={index} value={time}>{time}</option>
