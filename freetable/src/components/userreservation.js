@@ -21,15 +21,27 @@ export default function Dashboard() {
     const [reviewModal, setReviewModal] = useState(false)
     const [restaurantReview, setRestaurantReview] = useState("")
     const [restaurantName, setRestaurantName] = useState("")
+    const [userName, setUserName] = useState("")
+    const [users, setUsers] = useState([])
 
     const fetchData = async () => {
         const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get()
         setReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        const usersCollection = await firestore.collection('users').get()
+        setUsers(usersCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     };
+
+    const setCurrentUserName = (email) => {
+        const user = users.find(user => user.email === email)
+        if(user){
+        setUserName(user)}
+    }
 
     useEffect(() => {
         fetchData()
-    }, [currentUser])
+        setCurrentUserName(currentUser.email)
+    }, [users, currentUser])
 
     function handleSignOut(){
         signout()
@@ -54,7 +66,7 @@ export default function Dashboard() {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
-            
+            name: userName.name
         }
         
         const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get()

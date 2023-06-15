@@ -23,14 +23,16 @@ export default function Dashboard() {
     const [restaurants, setRestaurants] = useState([])
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [startDate, setStartDate] = useState(new Date())
-    const [numPeople, setNumPeople] = useState(0)
-    const [reservationTime, setReservationTime] = useState()
+    const [numPeople, setNumPeople] = useState(1)
+    const [reservationTime, setReservationTime] = useState("09:00")
     const tomorrow = addDays(new Date(), 1)
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0)
     const [reviews, setReviews] = useState([])
     const [occupiedChairs, setOccupiedChairs] = useState(0)
     // eslint-disable-next-line
     const [reservations, setReservations] = useState([])
+    const [userName, setUserName] = useState("")
+    const [users, setUsers] = useState([])
 
     const times = [
         "09:00",
@@ -64,6 +66,9 @@ export default function Dashboard() {
 
         const reservationsCollection = await firestore.collection('reservations').get()
         setReservations(reservationsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        const usersCollection = await firestore.collection('users').get()
+        setUsers(usersCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
     const fetchReviews = async (resId) => {
@@ -71,13 +76,19 @@ export default function Dashboard() {
         setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
+    const setCurrentUserName = (email) => {
+        const user = users.find(user => user.email === email)
+        if(user){
+        setUserName(user)}
+    }
 
     useEffect(() => {
         fetchData()
+        setCurrentUserName(currentUser.email)
         if (currentRestaurant) {
             fetchReviews(currentRestaurant.id)
           }
-    }, [currentUser, currentRestaurant])
+    }, [users, currentUser, currentRestaurant])
 
 
     function handleSignOut(){
@@ -109,6 +120,7 @@ export default function Dashboard() {
                 numberOfPeople: numPeople,
                 time: reservationTime,
                 userEmail: currentUser.email,
+                name: userName.name,
                 resturantId: restaurantId,
                 restaurantName: restaurantName,
                 resId: ''
@@ -213,13 +225,13 @@ export default function Dashboard() {
                         {reviews.map((review) => (
                         <div key={review.id} className='review-item'>
                             <p className='review-text'>{review.text}</p>
-                            <p className='review-user'>By: {review.userId}</p>
+                            <p className='review-user'>By: {review.name}</p>
                         </div>
                         ))}
                     </div>
                 </TabPane>
                 <TabPane eventKey="reserve" active={activeTab === 'reserve'}>
-                    <h2 className='title'>Reserve as {currentUser ? currentUser.email : "Guest"}</h2>
+                    <h2 className='title'>Reserve as {userName.name}</h2>
                     <div className='picker'>
                         <label className='date'>Select a date:</label>
                         <DatePicker

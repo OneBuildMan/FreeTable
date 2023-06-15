@@ -389,7 +389,7 @@ export default function Dashboard() {
                             {reviews.map((review) => (
                               <div key={review.id} className='review-item'>
                                 <p className='review-text'>{review.text}</p>
-                                <p className='review-user'>By: {review.userId}</p>
+                                <p className='review-user'>By: {review.name}</p>
                                 <Button className='btn' onClick={() => handleReport(review.text, review.userId, review.id, currentRestaurant.id)}>Report review</Button>
                               </div>
                             ))}
@@ -423,7 +423,7 @@ export default function Dashboard() {
                             <tbody>
                                 {r1.map(reservation => (
                                     <tr key={reservation.resId}>
-                                        <td>{reservation.userEmail}</td>
+                                        <td>{reservation.name}</td>
                                         <td>{reservation.date}</td>
                                         <td>{reservation.time}</td>
                                     </tr>
