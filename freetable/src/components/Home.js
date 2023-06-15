@@ -1,5 +1,6 @@
 import React , { useEffect , useState } from 'react'
 import logo from '../img/logo.png'
+import userIcon from '../img/user-icon.png'
 import signoutimg from '../img/signout.png'
 import { useAuth } from '../contexts/AuthContext'
 import { Link , useNavigate } from "react-router-dom"
@@ -12,6 +13,7 @@ import { format, setHours, setMinutes} from 'date-fns'
 import './css/reserve.css'
 import './css/review.css'
 import emailjs from '@emailjs/browser'
+import './css/profile.css'
 
 Modal.setAppElement('#root')
 
@@ -23,14 +25,17 @@ export default function Dashboard() {
     const [restaurants, setRestaurants] = useState([])
     const [restaurantModal, setRestaurantModal] = useState(false)
     const [startDate, setStartDate] = useState(new Date())
-    const [numPeople, setNumPeople] = useState(0)
-    const [reservationTime, setReservationTime] = useState()
+    const [numPeople, setNumPeople] = useState(1)
+    const [reservationTime, setReservationTime] = useState("09:00")
     const tomorrow = addDays(new Date(), 1)
     const minDateTime = setHours(setMinutes(tomorrow, 0), 0)
     const [reviews, setReviews] = useState([])
     const [occupiedChairs, setOccupiedChairs] = useState(0)
     // eslint-disable-next-line
     const [reservations, setReservations] = useState([])
+    const [userName, setUserName] = useState("")
+    const [users, setUsers] = useState([])
+    const [profileModal, setProfileModal] = useState(false)
 
     const times = [
         "09:00",
@@ -64,6 +69,9 @@ export default function Dashboard() {
 
         const reservationsCollection = await firestore.collection('reservations').get()
         setReservations(reservationsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        const usersCollection = await firestore.collection('users').get()
+        setUsers(usersCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
     const fetchReviews = async (resId) => {
@@ -71,9 +79,15 @@ export default function Dashboard() {
         setReviews(reviewsCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
     }
 
+    const setCurrentUserName = (email) => {
+        const user = users.find(user => user.email === email)
+        if(user){
+        setUserName(user)}
+    }
 
     useEffect(() => {
         fetchData()
+        setCurrentUserName(currentUser.email)
         if (currentRestaurant) {
             fetchReviews(currentRestaurant.id)
           }
@@ -94,6 +108,7 @@ export default function Dashboard() {
 
     function closeModal() {
         setRestaurantModal(false)
+        setProfileModal(false)
     }
 
     function addDays(date, days) {
@@ -106,9 +121,11 @@ export default function Dashboard() {
         try {
             const reservationData = {
                 date: format(startDate, 'MMMM d'),
+                unformatedDate: startDate,
                 numberOfPeople: numPeople,
                 time: reservationTime,
                 userEmail: currentUser.email,
+                name: userName.name,
                 resturantId: restaurantId,
                 restaurantName: restaurantName,
                 resId: ''
@@ -146,6 +163,34 @@ export default function Dashboard() {
         setOccupiedChairs(total)
     }
 
+    function openProfileModal() {
+        setProfileModal(true)
+    }
+
+    async function deleteAccount() {
+        if(window.confirm("Are you sure you want to delete the account? This will delete all your reservations!")){
+            await firestore.collection('reservations').where("userEmail", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+
+            await firestore.collection('users').where("email", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+            await currentUser.delete()
+            navigate('/login')
+        }
+    }
+
     return (
         <>
         <header>
@@ -154,9 +199,16 @@ export default function Dashboard() {
             </div>
             <div className='buttons'>
                 <Link to='/home' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Restaurants</Link>
-                <Link to='/userreservation' className='button'>Your reservation</Link>
+                <Link to='/userreservation' className='button'>Your reservations</Link>
+                <img src={userIcon} alt="profile" className='sign-out-btn' onClick={openProfileModal} />
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
             </div>
+            <Modal isOpen={profileModal} onRequestClose={closeModal} contentLabel='profile' className='profile'>
+                <h2>Hello!</h2>
+                <p>You are logged in as: {currentUser.email}</p>
+                <button onClick={deleteAccount}>Delete account</button>
+                <button onClick={closeModal}>Close</button>
+            </Modal>
         </header>
         <div className="restaurant-list">
             {restaurants.map(restaurant => (
@@ -219,7 +271,7 @@ export default function Dashboard() {
                     </div>
                 </TabPane>
                 <TabPane eventKey="reserve" active={activeTab === 'reserve'}>
-                    <h2 className='title'>Reserve as {currentUser ? currentUser.email : "Guest"}</h2>
+                    <h2 className='title'>Reserve as {userName.name}</h2>
                     <div className='picker'>
                         <label className='date'>Select a date:</label>
                         <DatePicker

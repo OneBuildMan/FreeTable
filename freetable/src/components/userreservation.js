@@ -5,6 +5,7 @@ import './css/button.css'
 import './css/user-res.css'
 import './css/review.css'
 import { useEffect, useState } from 'react'
+import userIcon from '../img/user-icon.png'
 import { firestore } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from "react-router-dom"
@@ -15,17 +16,26 @@ import { Button } from 'react-bootstrap'
 Modal.setAppElement('#root')
 
 export default function Dashboard() {
-    const [reservations, setReservations] = useState([])
+    const [pastReservations, setPastReservations] = useState([])
+    const [futureReservations, setFutureReservations] = useState([])
     const { currentUser, signout } = useAuth()
     const navigate = useNavigate()
     const [reviewModal, setReviewModal] = useState(false)
     const [restaurantReview, setRestaurantReview] = useState("")
     const [restaurantName, setRestaurantName] = useState("")
+    const [profileModal, setProfileModal] = useState(false)
 
     const fetchData = async () => {
-        const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get()
-        setReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+        let currentDate = new Date()
+        const resCollection = await firestore.collection('reservations').where("userEmail", "==", currentUser.email).where("unformatedDate", "<", currentDate).get()
+        setPastReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        const resFutureCollection = await firestore.collection('reservations').where("userEmail", "==", currentUser.email).where("unformatedDate", ">", currentDate).get()
+        setFutureReservations(resFutureCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        console.log(currentDate, futureReservations, pastReservations)
     };
+
 
     useEffect(() => {
         fetchData()
@@ -43,10 +53,15 @@ export default function Dashboard() {
         setReviewModal(true)
     }
 
+    function openProfileModal() {
+        setProfileModal(true)
+    }
+
     function closeReviewModal() {
         setRestaurantReview("")
         setRestaurantName("")
         setReviewModal(false)
+        setProfileModal(false)
     }
 
     async function leaveReview() {
@@ -54,14 +69,13 @@ export default function Dashboard() {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
-            
         }
         
         const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get()
-        const resId = restaurant.docs[0].id
-        let doc = await firestore.collection('restaurants').doc(resId).collection('reviews').add(review)
-        let reviewId = doc.id
-        await doc.update({id: reviewId})
+        const rId = restaurant.docs[0].id
+        const newReview = await firestore.collection('restaurants').doc(rId).collection('reviews').add(review)
+        const reviewId = newReview.id
+        await newReview.update({id: reviewId})
 
         setRestaurantReview("")
         closeReviewModal()
@@ -72,6 +86,30 @@ export default function Dashboard() {
         fetchData()
     }
 
+    async function deleteAccount() {
+        if(window.confirm("Are you sure you want to delete the account? This will delete all your reservations!")){
+            await firestore.collection('reservations').where("userEmail", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+
+            await firestore.collection('users').where("email", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+            await currentUser.delete()
+            navigate('/login')
+        }
+    }
+
     return (
         <>
         <header>
@@ -80,13 +118,48 @@ export default function Dashboard() {
             </div>
             <div className='buttons'>
                 <Link to='/home' className='button'>Restaurants</Link>
-                <Link to='/userreservation' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your reservation</Link>
+                <Link to='/userreservation' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your reservations</Link>
+                <img src={userIcon} alt="profile" className='sign-out-btn' onClick={openProfileModal} />
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
+                <Modal isOpen={profileModal} onRequestClose={closeReviewModal} contentLabel='profile' className='profile'>
+                    <h2>Hello!</h2>
+                    <p>You are logged in as: {currentUser.email}</p>
+                    <button onClick={deleteAccount}>Delete account</button>
+                    <button onClick={closeReviewModal}>Close</button>
+            </Modal>
             </div>
         </header>
         <div className='user-tables'>
             <div className='user-table'>
-            <h1>Your reservations</h1>
+            <h1>Your current reservations</h1>
+            <table className='user-user-table'>
+                <thead>
+                    <tr>
+                        <th>Restaurant Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Pending review</th>
+                        <th>Delete reseravion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {futureReservations.map(reservation => (
+                        <tr key={reservation.resId}>
+                            <td>{reservation.restaurantName}</td>
+                            <td>{reservation.date}</td>
+                            <td>{reservation.time}</td>
+                            <td>Pending</td>
+                            <td><button onClick={() => deleteReservation(reservation.id)}>Delete reservation</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <div className='user-tables'>
+            <div className='user-table'>
+            <h1>Your past reservations</h1>
             <table className='user-user-table'>
                 <thead>
                     <tr>
@@ -98,7 +171,7 @@ export default function Dashboard() {
                     </tr>
                 </thead>
                 <tbody>
-                    {reservations.map(reservation => (
+                    {pastReservations.map(reservation => (
                         <tr key={reservation.resId}>
                             <td>{reservation.restaurantName}</td>
                             <td>{reservation.date}</td>
