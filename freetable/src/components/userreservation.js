@@ -15,33 +15,29 @@ import { Button } from 'react-bootstrap'
 Modal.setAppElement('#root')
 
 export default function Dashboard() {
-    const [reservations, setReservations] = useState([])
+    const [pastReservations, setPastReservations] = useState([])
+    const [futureReservations, setFutureReservations] = useState([])
     const { currentUser, signout } = useAuth()
     const navigate = useNavigate()
     const [reviewModal, setReviewModal] = useState(false)
     const [restaurantReview, setRestaurantReview] = useState("")
     const [restaurantName, setRestaurantName] = useState("")
-    const [userName, setUserName] = useState("")
-    const [users, setUsers] = useState([])
 
     const fetchData = async () => {
-        const resCollection = await firestore.collection('reservations').where("userEmail", "==",currentUser.email).get()
-        setReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+        let currentDate = new Date()
+        const resCollection = await firestore.collection('reservations').where("userEmail", "==", currentUser.email).where("unformatedDate", "<", currentDate).get()
+        setPastReservations(resCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
 
-        const usersCollection = await firestore.collection('users').get()
-        setUsers(usersCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+        const resFutureCollection = await firestore.collection('reservations').where("userEmail", "==", currentUser.email).where("unformatedDate", ">", currentDate).get()
+        setFutureReservations(resFutureCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+
+        console.log(currentDate, futureReservations, pastReservations)
     };
 
-    const setCurrentUserName = (email) => {
-        const user = users.find(user => user.email === email)
-        if(user){
-        setUserName(user)}
-    }
 
     useEffect(() => {
         fetchData()
-        setCurrentUserName(currentUser.email)
-    }, [users, currentUser])
+    }, [currentUser])
 
     function handleSignOut(){
         signout()
@@ -66,14 +62,13 @@ export default function Dashboard() {
             text: restaurantReview,
             userId: currentUser.email, 
             restaurantName: restaurantName,
-            name: userName.name
         }
         
         const restaurant = await firestore.collection('restaurants').where("name", "==", restaurantName).get()
-        const resId = restaurant.docs[0].id
-        let doc = await firestore.collection('restaurants').doc(resId).collection('reviews').add(review)
-        let reviewId = doc.id
-        await doc.update({id: reviewId})
+        const rId = restaurant.docs[0].id
+        const newReview = await firestore.collection('restaurants').doc(rId).collection('reviews').add(review)
+        const reviewId = newReview.id
+        await newReview.update({id: reviewId})
 
         setRestaurantReview("")
         closeReviewModal()
@@ -98,7 +93,35 @@ export default function Dashboard() {
         </header>
         <div className='user-tables'>
             <div className='user-table'>
-            <h1>Your reservations</h1>
+            <h1>Your current reservations</h1>
+            <table className='user-user-table'>
+                <thead>
+                    <tr>
+                        <th>Restaurant Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Pending review</th>
+                        <th>Delete reseravion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {futureReservations.map(reservation => (
+                        <tr key={reservation.resId}>
+                            <td>{reservation.restaurantName}</td>
+                            <td>{reservation.date}</td>
+                            <td>{reservation.time}</td>
+                            <td>Pending</td>
+                            <td><button onClick={() => deleteReservation(reservation.id)}>Delete reservation</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <div className='user-tables'>
+            <div className='user-table'>
+            <h1>Your past reservations</h1>
             <table className='user-user-table'>
                 <thead>
                     <tr>
@@ -110,7 +133,7 @@ export default function Dashboard() {
                     </tr>
                 </thead>
                 <tbody>
-                    {reservations.map(reservation => (
+                    {pastReservations.map(reservation => (
                         <tr key={reservation.resId}>
                             <td>{reservation.restaurantName}</td>
                             <td>{reservation.date}</td>

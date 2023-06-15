@@ -25,3 +25,7 @@
     cursor: pointer;
 }
 
+.pending{
+    all: unset;
+    background-color: orange;
+}

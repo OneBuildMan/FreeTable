@@ -88,7 +88,7 @@ export default function Dashboard() {
         if (currentRestaurant) {
             fetchReviews(currentRestaurant.id)
           }
-    }, [users, currentUser, currentRestaurant])
+    }, [currentUser, currentRestaurant])
 
 
     function handleSignOut(){
@@ -117,6 +117,7 @@ export default function Dashboard() {
         try {
             const reservationData = {
                 date: format(startDate, 'MMMM d'),
+                unformatedDate: startDate,
                 numberOfPeople: numPeople,
                 time: reservationTime,
                 userEmail: currentUser.email,
@@ -225,7 +226,7 @@ export default function Dashboard() {
                         {reviews.map((review) => (
                         <div key={review.id} className='review-item'>
                             <p className='review-text'>{review.text}</p>
-                            <p className='review-user'>By: {review.name}</p>
+                            <p className='review-user'>By: {review.userId}</p>
                         </div>
                         ))}
                     </div>

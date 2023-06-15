@@ -27,6 +27,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "hosting": {
+    "site": "freetable-licenta",
+    "public": "public"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
