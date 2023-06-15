@@ -5,6 +5,7 @@ import './css/button.css'
 import './css/user-res.css'
 import './css/review.css'
 import { useEffect, useState } from 'react'
+import userIcon from '../img/user-icon.png'
 import { firestore } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from "react-router-dom"
@@ -22,6 +23,7 @@ export default function Dashboard() {
     const [reviewModal, setReviewModal] = useState(false)
     const [restaurantReview, setRestaurantReview] = useState("")
     const [restaurantName, setRestaurantName] = useState("")
+    const [profileModal, setProfileModal] = useState(false)
 
     const fetchData = async () => {
         let currentDate = new Date()
@@ -51,10 +53,15 @@ export default function Dashboard() {
         setReviewModal(true)
     }
 
+    function openProfileModal() {
+        setProfileModal(true)
+    }
+
     function closeReviewModal() {
         setRestaurantReview("")
         setRestaurantName("")
         setReviewModal(false)
+        setProfileModal(false)
     }
 
     async function leaveReview() {
@@ -79,6 +86,30 @@ export default function Dashboard() {
         fetchData()
     }
 
+    async function deleteAccount() {
+        if(window.confirm("Are you sure you want to delete the account? This will delete all your reservations!")){
+            await firestore.collection('reservations').where("userEmail", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+
+            await firestore.collection('users').where("email", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+            await currentUser.delete()
+            navigate('/login')
+        }
+    }
+
     return (
         <>
         <header>
@@ -88,7 +119,14 @@ export default function Dashboard() {
             <div className='buttons'>
                 <Link to='/home' className='button'>Restaurants</Link>
                 <Link to='/userreservation' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your reservations</Link>
+                <img src={userIcon} alt="profile" className='sign-out-btn' onClick={openProfileModal} />
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
+                <Modal isOpen={profileModal} onRequestClose={closeReviewModal} contentLabel='profile' className='profile'>
+                    <h2>Hello!</h2>
+                    <p>You are logged in as: {currentUser.email}</p>
+                    <button onClick={deleteAccount}>Delete account</button>
+                    <button onClick={closeReviewModal}>Close</button>
+            </Modal>
             </div>
         </header>
         <div className='user-tables'>

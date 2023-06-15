@@ -168,7 +168,7 @@ export default function Dashboard() {
     }
 
     async function deleteAccount() {
-        if(window.confirm("Are you sure you want to delete the account?")){
+        if(window.confirm("Are you sure you want to delete the account? This will delete all your reservations!")){
             await firestore.collection('reservations').where("userEmail", "==", currentUser.email).get().then((allD) => {
                 let deleted = firestore.batch()
                 allD.forEach(doc => {

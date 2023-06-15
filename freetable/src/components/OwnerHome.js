@@ -2,6 +2,7 @@ import React, { useState, useRef , useEffect} from 'react'
 import Modal from 'react-modal'
 import logo from '../img/logo.png'
 import signoutimg from '../img/signout.png'
+import userIcon from '../img/user-icon.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate , Link } from "react-router-dom"
 import { firestore , storage } from '../firebase'
@@ -9,6 +10,7 @@ import { Form, Button, Card, TabContent, TabPane, Image, Container, Nav } from '
 import './css/restauranttab.css'
 import './css/review.css'
 import './css/res-rez.css'
+import './css/profile.css'
 
 Modal.setAppElement('#root')
 
@@ -40,6 +42,7 @@ export default function Dashboard() {
     const [reportedReview, setReportedReview] = useState("")
     const [reportedUser, setReportedUser] = useState("")
     const [r1, setr1] = useState([])
+    const [profileModal, setProfileModal] = useState(false)
 
     const fetchReviews = async (resId) => {
       const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get()
@@ -160,19 +163,24 @@ export default function Dashboard() {
     }
 
     const handleEdit = () => {
-      setEditForm(true);
+      setEditForm(true)
     };
 
     const handleDelete = () => {
-      setDeleteForm(true);
+      setDeleteForm(true)
     }; 
 
     const handleCloseForm = () => {
-      setEditForm(false);
-      setDeleteForm(false);
+      setEditForm(false)
+      setDeleteForm(false)
       setNewRestaurantModal(false)
       setReportModal(false)
-    };
+      setProfileModal(false)
+    }
+
+    function openProfileModal() {
+      setProfileModal(true)
+    }
 
     async function handleEditForm(e) {
       e.preventDefault()
@@ -315,6 +323,30 @@ export default function Dashboard() {
       closeModal()
     }
 
+    async function deleteAccount() {
+      if(window.confirm("Are you sure you want to delete the account? This will delete your restaurant(s)!")){
+          await firestore.collection('restaurants').where("restaurantId", "==", restaurant.restaurantId).get().then((allD) => {
+              let deleted = firestore.batch()
+              allD.forEach(doc => {
+                  deleted.delete(doc.ref)
+              })
+
+              return deleted.commit()
+          })
+
+          await firestore.collection('users').where("email", "==", currentUser.email).get().then((allD) => {
+              let deleted = firestore.batch()
+              allD.forEach(doc => {
+                  deleted.delete(doc.ref)
+              })
+
+              return deleted.commit()
+          })
+          await currentUser.delete()
+          navigate('/login')
+      }
+    }
+
     return (
         <>
         <header>
@@ -324,8 +356,15 @@ export default function Dashboard() {
           <div className='buttons'>
             <Link to='/ownerhome' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your restuarant</Link>
             <Button className='button' onClick={addNewModal}>Add restaurant</Button>
+            <img src={userIcon} alt="profile" className='sign-out-btn' onClick={openProfileModal} />
             <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
           </div>
+          <Modal isOpen={profileModal} onRequestClose={closeModal} contentLabel='profile' className='profile'>
+                <h2>Hello!</h2>
+                <p>You are logged in as: {currentUser.email}</p>
+                <button onClick={deleteAccount}>Delete account</button>
+                <button onClick={closeModal}>Close</button>
+            </Modal>
         </header>
 
         <div>
