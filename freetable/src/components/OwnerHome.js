@@ -286,6 +286,7 @@ export default function Dashboard() {
       setRestaurantModal(false)
       setNewRestaurantModal(false)
       setReportModal(false)
+      setProfileModal(false)
     }
 
     function addNewModal() {

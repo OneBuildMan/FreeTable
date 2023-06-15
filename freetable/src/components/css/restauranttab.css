@@ -78,6 +78,8 @@
     background-color: black !important;
     transition: all 0.3s ease; 
     font-size: 20px !important;
+    margin-top: 2px !important;
+    margin-bottom: 5px !important;
 }
 
 .btn:hover {
