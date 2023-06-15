@@ -40,43 +40,43 @@ export default function Signup() {
 
     return (
         <>
-            <Card>
-                <Card.Body>
-                    <h2 className='text-center mb-4'>Sign up</h2>
-                    {error && <Alert variant="danger">{error}</Alert>}
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group id="name">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control type="name" ref={nameRef} required />
-                        </Form.Group>
-                        <Form.Group id="email">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control type="email" ref={emailRef} required />
-                            <Form.Text className="text-muted">Email has to be valid</Form.Text>
-                        </Form.Group>
-                        <Form.Group id="password">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" ref={passwordRef} required />
-                            <Form.Text className="text-muted">Password must be at least 6 characters</Form.Text>
-                        </Form.Group>
-                        <Form.Group id="password-confirm">
-                            <Form.Label>Password confirmation</Form.Label>
-                            <Form.Control type="password" ref={passwordConfirmRef} required />
-                        </Form.Group>
-                        <Form.Group id="role">
-                            <Form.Label>What are you?</Form.Label>
-                            <Form.Control as="select" ref={roleRef} required>
-                                <option value="user">User</option>
-                                <option value="owner">Restaurant owner</option>
-                             </Form.Control>
-                        </Form.Group>
-                        <div className='w-100 text-center mt-2'>
-                             {/*for space purpose*/}
-                        </div>
-                        <Button disabled={loading} className="btn" type="submit" style={{margin: "0 auto", display: "block"}}>Sign Up</Button>
-                    </Form>
-                </Card.Body>
-            </Card>
+        <Card>
+            <Card.Body>
+                <h2 className='text-center mb-4'>Sign up</h2>
+                {error && <Alert variant="danger">{error}</Alert>}
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group id="name">
+                         <Form.Label>Name</Form.Label>
+                        <Form.Control type="name" ref={nameRef} required />
+                    </Form.Group>
+                    <Form.Group id="email">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="email" ref={emailRef} required />
+                        <Form.Text className="text-muted">Email has to be valid</Form.Text>
+                    </Form.Group>
+                    <Form.Group id="password">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control type="password" ref={passwordRef} required />
+                        <Form.Text className="text-muted">Password must be at least 6 characters</Form.Text>
+                    </Form.Group>
+                    <Form.Group id="password-confirm">
+                        <Form.Label>Password confirmation</Form.Label>
+                        <Form.Control type="password" ref={passwordConfirmRef} required />
+                    </Form.Group>
+                    <Form.Group id="role">
+                        <Form.Label>What are you?</Form.Label>
+                        <Form.Control as="select" ref={roleRef} required>
+                            <option value="user">User</option>
+                            <option value="owner">Restaurant owner</option>
+                        </Form.Control>
+                    </Form.Group>
+                    <div className='w-100 text-center mt-2'>
+                        {/*for space purpose*/}
+                    </div>
+                    <Button disabled={loading} className="btn" type="submit" style={{margin: "0 auto", display: "block"}}>Sign Up</Button>
+                </Form>
+            </Card.Body>
+        </Card>
         <div className='w-100 text-center mt-2'>
             Already have an account? <Link to="/login">Login</Link>
         </div>

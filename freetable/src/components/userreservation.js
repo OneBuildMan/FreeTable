@@ -185,16 +185,9 @@ export default function Dashboard() {
             </div>
         </div>
 
-        <Modal
-            isOpen={reviewModal}
-            onRequestClose={closeReviewModal}
-            contentLabel='LeaveReview'>
+        <Modal isOpen={reviewModal} onRequestClose={closeReviewModal} contentLabel='LeaveReview'>
             <h2 className="restaurant-name">Leave a review</h2>
-            <textarea  
-                className='review'
-                onChange={(e) => setRestaurantReview(e.target.value)} 
-                placeholder="Write your review here..." 
-            />
+            <textarea className='review' onChange={(e) => setRestaurantReview(e.target.value)} placeholder="Write your review here..." />
             <button className='btn-reserve' onClick={() => leaveReview()}>Leave review</button>
             <Button className="btn" onClick={closeReviewModal} style={{
                 display: 'inline-block',
@@ -202,10 +195,8 @@ export default function Dashboard() {
                 bottom: '10px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                
                 }}>Close</Button>
         </Modal>
-
         </>
     )
 }

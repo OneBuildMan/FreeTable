@@ -9,11 +9,15 @@ import { firestore } from '../firebase'
 
 export default function Dashboard() {
     const [reports, setReports] = useState([]);
+    const [resReports, setResReports] = useState([]);
 
     const fetchData = async () => {
         const reportCollection = await firestore.collection('reports').get()
         setReports(reportCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
-    };
+
+        const reportResCollection = await firestore.collection('reports-res').get()
+        setResReports(reportResCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
+    }
 
 
     useEffect(() => {
@@ -37,6 +41,17 @@ export default function Dashboard() {
         fetchData()
     }
 
+    const deleteResReport = async(reportId) => {
+        await firestore.collection('reports-res').doc(reportId).delete()
+        fetchData()
+    }
+
+    const deleteRes = async(reportId, id) => {
+        await firestore.collection('reports-res').doc(reportId).delete()
+        await firestore.collection('reservations').doc(id).delete()
+        fetchData()
+    }
+
     return (
         <>
         <header>
@@ -51,7 +66,7 @@ export default function Dashboard() {
         </header>
         <div className='reports'>
             <div className='report'>
-                <h1>Reports</h1>
+                <h1>Reported Reviews</h1>
                 <table className='report-table'>
                     <thead>
                         <tr>
@@ -72,6 +87,31 @@ export default function Dashboard() {
                                 <td>{report.text}</td>
                                 <td><button onClick={() => deleteReport(report.id)}>Delete report</button></td>
                                 <td><button onClick={() => deleteReview(report.id, report.restaurantId, report.reviewId)}>Delete review</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <div className='report'>
+                <h1>Reported Reservations</h1>
+                <table className='report-table'>
+                    <thead>
+                        <tr>
+                            <th>Reported user</th>
+                            <th>Reporter</th>
+                            <th>Reason</th>
+                            <th>Delete report</th>
+                            <th>Delete reservation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {resReports.map(report => (
+                            <tr key={report.id}>
+                                <td>{report.reportedUser}</td>
+                                <td>{report.reporter}</td>
+                                <td>{report.text}</td>
+                                <td><button onClick={() => deleteResReport(report.id)}>Delete report</button></td>
+                                <td><button onClick={() => deleteRes(report.id, report.reservationId)}>Delete reservation</button></td>
                             </tr>
                         ))}
                     </tbody>
