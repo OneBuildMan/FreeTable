@@ -87,7 +87,7 @@ export default function Dashboard() {
             </div>
             <div className='buttons'>
                 <Link to='/home' className='button'>Restaurants</Link>
-                <Link to='/userreservation' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your reservation</Link>
+                <Link to='/userreservation' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Your reservations</Link>
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
             </div>
         </header>

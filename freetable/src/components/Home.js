@@ -1,5 +1,6 @@
 import React , { useEffect , useState } from 'react'
 import logo from '../img/logo.png'
+import userIcon from '../img/user-icon.png'
 import signoutimg from '../img/signout.png'
 import { useAuth } from '../contexts/AuthContext'
 import { Link , useNavigate } from "react-router-dom"
@@ -12,6 +13,7 @@ import { format, setHours, setMinutes} from 'date-fns'
 import './css/reserve.css'
 import './css/review.css'
 import emailjs from '@emailjs/browser'
+import './css/profile.css'
 
 Modal.setAppElement('#root')
 
@@ -33,6 +35,7 @@ export default function Dashboard() {
     const [reservations, setReservations] = useState([])
     const [userName, setUserName] = useState("")
     const [users, setUsers] = useState([])
+    const [profileModal, setProfileModal] = useState(false)
 
     const times = [
         "09:00",
@@ -105,6 +108,7 @@ export default function Dashboard() {
 
     function closeModal() {
         setRestaurantModal(false)
+        setProfileModal(false)
     }
 
     function addDays(date, days) {
@@ -159,6 +163,34 @@ export default function Dashboard() {
         setOccupiedChairs(total)
     }
 
+    function openProfileModal() {
+        setProfileModal(true)
+    }
+
+    async function deleteAccount() {
+        if(window.confirm("Are you sure you want to delete the account?")){
+            await firestore.collection('reservations').where("userEmail", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+
+            await firestore.collection('users').where("email", "==", currentUser.email).get().then((allD) => {
+                let deleted = firestore.batch()
+                allD.forEach(doc => {
+                    deleted.delete(doc.ref)
+                })
+
+                return deleted.commit()
+            })
+            await currentUser.delete()
+            navigate('/login')
+        }
+    }
+
     return (
         <>
         <header>
@@ -167,9 +199,16 @@ export default function Dashboard() {
             </div>
             <div className='buttons'>
                 <Link to='/home' style={{ backgroundColor: 'red', color: 'white' }} className='button'>Restaurants</Link>
-                <Link to='/userreservation' className='button'>Your reservation</Link>
+                <Link to='/userreservation' className='button'>Your reservations</Link>
+                <img src={userIcon} alt="profile" className='sign-out-btn' onClick={openProfileModal} />
                 <img src={signoutimg} alt="Sign Out" className='sign-out-btn' onClick={handleSignOut} />
             </div>
+            <Modal isOpen={profileModal} onRequestClose={closeModal} contentLabel='profile' className='profile'>
+                <h2>Hello!</h2>
+                <p>You are logged in as: {currentUser.email}</p>
+                <button onClick={deleteAccount}>Delete account</button>
+                <button onClick={closeModal}>Close</button>
+            </Modal>
         </header>
         <div className="restaurant-list">
             {restaurants.map(restaurant => (
