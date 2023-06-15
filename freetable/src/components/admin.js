@@ -15,48 +15,44 @@ export default function Dashboard() {
     const [restaurants, setRestaurants] = useState([])
 
     const fetchData = async () => {
-        const userCollection = await firestore.collection('users').where("banned", "==", "no").get();
+        const userCollection = await firestore.collection('users').where("banned", "==", "no").get()
         setUsers(userCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})).filter(user => user.role === 'user'))
         setOwners(userCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})).filter(user => user.role === 'owner'))
 
         const restaurantCollection = await firestore.collection('restaurants').get()
         setRestaurants(restaurantCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
 
-        const bannedCollection = await firestore.collection('users').where("banned", "==", "yes").get();
+        const bannedCollection = await firestore.collection('users').where("banned", "==", "yes").get()
         setBannedUsers(bannedCollection.docs.map(doc => ({ ...doc.data(), id: doc.id})))
-    };
+    }
 
 
     useEffect(() => {
-        fetchData();
-    }, []
-    )
+        fetchData()
+    }, [])
 
     const banUser = async (userId) => {
         if(window.confirm('Are you sure you want to ban this user?')){
             await firestore.collection('users').doc(userId).update({
                 banned: 'yes'
             })
-
-            fetchData();
+            fetchData()
         }
     }
-
 
     const unbanUser = async (userId) => {
         if(window.confirm('Are you sure you want to unban this user?')){
             await firestore.collection('users').doc(userId).update({
                 banned: 'no'
             })
-
-            fetchData();
+            fetchData()
         }
     }
 
     const deleteRestaurant = async (resId) => {
         if(window.confirm('Are you sure you want to delete this user?')){
             await firestore.collection('restaurants').doc(resId).delete()
-            fetchData();
+            fetchData()
         }
     }
 
@@ -160,8 +156,6 @@ export default function Dashboard() {
                 </tbody>
             </table>
             </div>
-
-            
         </div>
         </>
     )

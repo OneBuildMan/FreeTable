@@ -43,6 +43,9 @@ export default function Dashboard() {
     const [reportedUser, setReportedUser] = useState("")
     const [r1, setr1] = useState([])
     const [profileModal, setProfileModal] = useState(false)
+    const [reportResModal, setReportResModal] = useState(false)
+    const [reportedRes, setReportedRes] = useState("")
+    const [LastUser, setLastUser] = useState("")
 
     const fetchReviews = async (resId) => {
       const reviewsCollection = await firestore.collection('restaurants').doc(resId).collection('reviews').get()
@@ -176,6 +179,7 @@ export default function Dashboard() {
       setNewRestaurantModal(false)
       setReportModal(false)
       setProfileModal(false)
+      setReportResModal(false)
     }
 
     function openProfileModal() {
@@ -286,6 +290,7 @@ export default function Dashboard() {
       setRestaurantModal(false)
       setNewRestaurantModal(false)
       setReportModal(false)
+      setReportResModal(false)
       setProfileModal(false)
     }
 
@@ -301,6 +306,14 @@ export default function Dashboard() {
       setReportModal(true)
     }
 
+    function reportRes(reportedUser, resId, LastUser) {
+      setRestaurantId(resId)
+      setReportedRes(reportedRes)
+      setReportedUser(reportedUser)
+      setLastUser(LastUser)
+      setReportResModal(true)
+    }
+
     async function reportReview() {
       const report = {
         text: reviewReport,
@@ -311,7 +324,7 @@ export default function Dashboard() {
         restaurantId: restaurantId
       }
     
-      let doc = await firestore.collection('reports').add(report);
+      let doc = await firestore.collection('reports').add(report)
       let reportId = doc.id
 
       await doc.update({id: reportId})
@@ -321,6 +334,23 @@ export default function Dashboard() {
       setReportedUser("")
       setReviewId("")
       setRestaurantId("")
+      closeModal()
+    }
+
+    async function reportResReview() {
+      const report = {
+        text: reportedRes,
+        reporter: currentUser.email,
+        reservationId: reportedUser,
+        reportedUser: LastUser
+      }
+
+      let doc = await firestore.collection('reports-res').add(report)
+      let reportId = doc.id
+
+      await doc.update({id: reportId})
+
+      setReportedRes("")
       closeModal()
     }
 
@@ -381,10 +411,7 @@ export default function Dashboard() {
                   </div>
                   ))}
               </div> 
-              <Modal
-                  isOpen={restaurantModal}
-                  onRequestClose={closeModal}
-                  contentLabel="Restaurant">
+              <Modal isOpen={restaurantModal} onRequestClose={closeModal} contentLabel="Restaurant">
                   <h2 className="restaurant-name">{currentRestaurant.name}</h2>
                   <Container className="restaurant">
                     <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
@@ -434,16 +461,9 @@ export default function Dashboard() {
                               </div>
                             ))}
                         </div>
-                        <Modal
-                          isOpen={reportModal}
-                          onRequestClose={handleCloseForm}
-                          contentLabel='Report'>
+                        <Modal isOpen={reportModal} onRequestClose={handleCloseForm} contentLabel='Report'>
                           <h2 className="restaurant-name">Report review</h2>
-                          <textarea  
-                              className='review'
-                              onChange={(e) => setReviewReport(e.target.value)} 
-                              placeholder="Write your report here..." 
-                          />
+                          <textarea  className='review' onChange={(e) => setReviewReport(e.target.value)} placeholder="Write your report here..." />
                           <button className='btn' onClick={() => reportReview()} style={{margin: "0 auto", display: "block"}}>Report review</button>
                           <Button disabled={loading} className="btn" type="submit" onClick={handleCloseForm} style={{margin: "0 auto", display: "block"}}>Cancel</Button>
                         </Modal>
@@ -458,6 +478,8 @@ export default function Dashboard() {
                                     <th>Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
+                                    <th>No. People</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -466,11 +488,19 @@ export default function Dashboard() {
                                         <td>{reservation.name}</td>
                                         <td>{reservation.date}</td>
                                         <td>{reservation.time}</td>
+                                        <td>{reservation.numberOfPeople}</td>
+                                        <Button className='btn' onClick={() => reportRes(reservation.resId, reservation.resturantId, reservation.userEmail)} style={{margin: "0 auto", display: "block"}}>Report</Button>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         </div>
+                          <Modal isOpen={reportResModal} onRequestClose={handleCloseForm} contentLabel='Report'>
+                            <h2 className="restaurant-name">Report Reservation</h2>
+                            <textarea  className='review' onChange={(e) => setReportedRes(e.target.value)} placeholder="Write your report here..." />
+                            <button className='btn' onClick={() => reportResReview()} style={{margin: "0 auto", display: "block"}}>Report Reservation</button>
+                            <Button disabled={loading} className="btn" type="submit" onClick={handleCloseForm} style={{margin: "0 auto", display: "block"}}>Cancel</Button>
+                          </Modal>
                         </div>
                       </TabPane>
                       <TabPane eventKey="settings" active={activeTab === 'settings'}>
@@ -479,10 +509,7 @@ export default function Dashboard() {
                           <Button className='btn' onClick={handleDelete}>Delete Restaurant</Button>
                         </div>
                         <div>
-                          <Modal
-                              isOpen={deleteForm}
-                              onRequestClose={handleCloseForm}
-                              contentLabel="Delete Restaurant">
+                          <Modal isOpen={deleteForm} onRequestClose={handleCloseForm} contentLabel="Delete Restaurant">
                               <div style={{ maxWidth: '400px', margin: '0 auto' }}>
                                     <Card>
                                     <Card.Body>
@@ -500,10 +527,7 @@ export default function Dashboard() {
                             </Modal>
                         </div>
                         <div>
-                          <Modal
-                            isOpen={editForm}
-                            onRequestClose={handleCloseForm}
-                            contentLabel="Edit Restaurant">
+                          <Modal isOpen={editForm} onRequestClose={handleCloseForm} contentLabel="Edit Restaurant">
                             <div style={{ maxWidth: '400px', margin: '0 auto' }}>
                                   <Card>
                                   <Card.Body>
@@ -554,13 +578,9 @@ export default function Dashboard() {
                       bottom: '10px',
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      
                       }}>Close</Button>
               </Modal>
-              <Modal
-                isOpen={newRestaurantModal}
-                onRequestClose={closeModal}
-                contentLabel="Delete Restaurant">
+              <Modal isOpen={newRestaurantModal} onRequestClose={closeModal} contentLabel="Delete Restaurant">
                 <div style={{ maxWidth: '400px', margin: '0 auto' }}>
                   <Card>
                     <Card.Body>
@@ -603,7 +623,6 @@ export default function Dashboard() {
                           bottom: '20px',
                           left: '50%',
                           transform: 'translateX(-50%)',
-                      
                       }}>Close</Button>
                   </div>
                 </Modal>
@@ -649,7 +668,6 @@ export default function Dashboard() {
               </div>
           )}
         </div>
-        
         </>
     )
 }

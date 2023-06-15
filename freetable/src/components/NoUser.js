@@ -74,10 +74,7 @@ export default function Dashboard() {
             </div>
             ))}
         </div> 
-        <Modal
-            isOpen={restaurantModal}
-            onRequestClose={closeModal}
-            contentLabel="Restaurant">
+        <Modal isOpen={restaurantModal} onRequestClose={closeModal} contentLabel="Restaurant">
             <h2 className="restaurant-name">{currentRestaurant.name}</h2>
             <Container className="restaurant">
               <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
@@ -137,7 +134,6 @@ export default function Dashboard() {
                 bottom: '10px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                
                 }}>Close</Button>
          </Modal>
         </>

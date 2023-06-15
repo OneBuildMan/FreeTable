@@ -114,7 +114,7 @@ export default function Dashboard() {
     function addDays(date, days) {
         const copy = new Date(Number(date))
         copy.setDate(date.getDate() + days)
-        return copy;
+        return copy
     }
 
     const handleReservation = async (restaurantId, restaurantName) => {
@@ -220,10 +220,7 @@ export default function Dashboard() {
             </div>
             ))}
         </div> 
-        <Modal
-            isOpen={restaurantModal}
-            onRequestClose={closeModal}
-            contentLabel="Restaurant">
+        <Modal isOpen={restaurantModal} onRequestClose={closeModal} contentLabel="Restaurant">
             <h2 className="restaurant-name">{currentRestaurant.name}</h2>
             <Container className="restaurant">
               <Nav variant="tabs" defaultActiveKey={activeTab} onSelect={(k) => setActiveTab(k)}>
@@ -286,10 +283,7 @@ export default function Dashboard() {
 
                     <div className='picker'>
                         <label className='people'>Select number of people:</label>
-                        <select
-                            value={numPeople}
-                            onChange={e => setNumPeople(Number(e.target.value))}
-                        >
+                        <select value={numPeople} onChange={e => setNumPeople(Number(e.target.value))}>
                             {Array.from({ length: currentRestaurant.capacity-occupiedChairs }, (_, i) => i + 1).map((number) => (
                                 <option key={number} value={number}>
                                     {number}
@@ -317,7 +311,6 @@ export default function Dashboard() {
                 bottom: '10px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                
                 }}>Close</Button>
          </Modal>
         </>
