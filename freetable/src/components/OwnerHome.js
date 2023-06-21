@@ -76,7 +76,7 @@ export default function Dashboard() {
           setRestaurant(restaurantData)
         }
         }
-      };
+      }
 
       if (currentRestaurant) {
         fetchReviews(currentRestaurant.id)
@@ -85,7 +85,7 @@ export default function Dashboard() {
       }
 
       fetchData()
-    }, [currentUser, currentRestaurant])
+    }, [currentUser, currentRestaurant, editForm, newRestaurantModal])
 
     function handleSignOut(){
         signout()
@@ -106,7 +106,7 @@ export default function Dashboard() {
 
       setLoading(true)
 
-      const menuStorageRef = storage.ref().child('menus').child(menuFile.name);
+      const menuStorageRef = storage.ref().child('menus').child(menuFile.name)
       const menuUploadTask = menuStorageRef.put(menuFile);
       await new Promise((resolve, reject) => {
         menuUploadTask.on('state_changed', 
@@ -118,25 +118,25 @@ export default function Dashboard() {
           () => {
             resolve();
           }
-        );
-      });
+        )
+      })
 
-      const menuUrl = await menuUploadTask.snapshot.ref.getDownloadURL();
+      const menuUrl = await menuUploadTask.snapshot.ref.getDownloadURL()
       
-      const photoStorageRef = storage.ref().child('photos').child(photoFile.name);
+      const photoStorageRef = storage.ref().child('photos').child(photoFile.name)
       const photoUploadTask = photoStorageRef.put(photoFile);
       await new Promise((resolve, reject) => {
         photoUploadTask.on('state_changed', 
           (snapshot) => {
           }, 
           (error) => {
-            reject(error);
+            reject(error)
           }, 
           () => {
-            resolve();
+            resolve()
           }
-        );
-      });
+        )
+      })
 
       const photoUrl = await photoUploadTask.snapshot.ref.getDownloadURL();
 
@@ -162,16 +162,16 @@ export default function Dashboard() {
       menuRef.current.value = ''
       photoRef.current.value = ''
 
-      window.location.reload(false);
+      setNewRestaurantModal(false)
     }
 
     const handleEdit = () => {
       setEditForm(true)
-    };
+    }
 
     const handleDelete = () => {
       setDeleteForm(true)
-    }; 
+    }
 
     const handleCloseForm = () => {
       setEditForm(false)
@@ -217,10 +217,10 @@ export default function Dashboard() {
               reject(error);
             },
             () => {
-              resolve();
+              resolve()
             }
-          );
-        });
+          )
+        })
     
         const menuUrl = await menuUploadTask.snapshot.ref.getDownloadURL();
         update.menuUrl = menuUrl;
@@ -235,10 +235,10 @@ export default function Dashboard() {
             'state_changed',
             (snapshot) => {},
             (error) => {
-              reject(error);
+              reject(error)
             },
             () => {
-              resolve();
+              resolve()
             }
           );
         });
@@ -251,17 +251,17 @@ export default function Dashboard() {
         await restaurantRef.update(update);
       }
     
-      setLoading(false);
+      setLoading(false)
     
-      nameRef.current.value = '';
-      phoneRef.current.value = '';
-      locationRef.current.value = '';
-      capacityRef.current.value = '';
-      menuRef.current.value = '';
-      photoRef.current.value = '';
+      nameRef.current.value = ''
+      phoneRef.current.value = ''
+      locationRef.current.value = ''
+      capacityRef.current.value = ''
+      menuRef.current.value = ''
+      photoRef.current.value = ''
     
-      setEditForm(false);
-      window.location.reload(false);
+      setEditForm(false)
+      setRestaurantModal(false)
     }
 
     async function handleDeleteForm(e) {
