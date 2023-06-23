@@ -113,10 +113,10 @@ export default function Dashboard() {
           (snapshot) => {
           }, 
           (error) => {
-            reject(error);
+            reject(error)
           }, 
           () => {
-            resolve();
+            resolve()
           }
         )
       })

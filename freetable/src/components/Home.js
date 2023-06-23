@@ -131,13 +131,13 @@ export default function Dashboard() {
                 resId: ''
             };
 
-            const docRef = await firestore.collection('reservations').add(reservationData);
+            const docRef = await firestore.collection('reservations').add(reservationData)
             const updatedReservationData = {
                 ...reservationData,
                 resId: docRef.id
-            };
+            }
   
-            await docRef.update(updatedReservationData);
+            await docRef.update(updatedReservationData)
             console.log("Document written with ID: ", docRef.id)
         } catch (error) {
             console.error("Error adding document: ", error)
